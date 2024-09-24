@@ -1,0 +1,17 @@
+{
+    "title": "OpenWrt MQTT",
+    "config": {
+        "step": {
+            "user": {
+                "title": "New OpenWrt device via MQTT",
+                "data": {
+                    "id": "Device name (unique)",
+                    "mqtt_topic": "MQTT Topic prefix. Example: collectd/device-hostname",
+                    "processor": "Processor data",
+                    "system_load": "System Load data",
+                    "memory": "Memory data"
+                }
+            }
+        }
+    }
+}

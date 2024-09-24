@@ -1,0 +1,7 @@
+homeassistant/
+mosquitto/config/*
+mosquitto/data/*
+mosquitto/log/*
+!mosquitto/config/mosquitto.conf
+!mosquitto/data/.gitkeep
+!mosquitto/log/.gitkeep

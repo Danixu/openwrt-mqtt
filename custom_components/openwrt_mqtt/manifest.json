@@ -1,0 +1,17 @@
+{
+    "domain": "openwrt_mqtt",
+    "name": "OpenWRT MQTT",
+    "version": "0.0.1",
+    "documentation": "https://tu-documentacion",
+    "dependencies": [
+        "mqtt"
+    ],
+    "codeowners": [
+        "@Danixu"
+    ],
+    "requirements": [],
+    "loggers": [
+        "custom_components.openwrt_mqtt"
+    ],
+    "config_flow": true
+}
