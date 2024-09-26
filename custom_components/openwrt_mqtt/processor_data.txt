@@ -14,4 +14,3 @@ AP3000-Caldera/cpu-1/percent-steal
 AP3000-Caldera/cpu-1/percent-system
 AP3000-Caldera/cpu-1/percent-user
 AP3000-Caldera/cpu-1/percent-wait
-Caldera/pepe

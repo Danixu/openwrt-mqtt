@@ -2,7 +2,7 @@
 DOMAIN = 'openwrt_mqtt'
 TOPICS_DATA = {
     "processor": {
-
+        
     },
     "system_load": {
 
