@@ -17,10 +17,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.setLevel(logging.DEBUG)
     _LOGGER.debug(entry.data)
 
-    # Crear el coordinador de datos
+    # Create the Data Coordinator
     coordinator = OpenWRTMqttCoordinator(hass, entry)
 
-    # Primera actualización de datos
+    # First data update
     await coordinator.async_config_entry_first_refresh()
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -34,21 +34,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Handle unloading of a config entry."""
-    # Desuscribir todas las entidades registradas bajo la plataforma
+    # Unsubscribe all the entities registered under the platform
     unload_ok = await hass.config_entries.async_unload_platforms(config_entry, ["sensor", "light"])
     
-    # Si se descargaron las plataformas correctamente
+    # If everything was ok
     if unload_ok:
         _LOGGER.debug("Deleting all!")
-        # Obtener el coordinador desde los datos de Home Assistant
+        # Get the coordinator
         coordinator = hass.data[DOMAIN].get(config_entry.entry_id)
 
-        # Si existe el coordinador, desuscribirse y cancelar sus tareas
+        # and if exists unsubscribe from the topic
         if coordinator:
             await coordinator.async_unsubscribe_from_topic()  # Desuscribirse de MQTT (si es necesario)
-            coordinator.async_cancel()  # Cancelar actualizaciones periódicas o tareas asíncronas
 
-        # Eliminar los datos asociados a la entrada de configuración
+        # Delete all the data asociated to the configuration entry
         hass.data[DOMAIN].pop(config_entry.entry_id)
 
     return unload_ok

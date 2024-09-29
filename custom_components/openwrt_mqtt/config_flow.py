@@ -10,11 +10,6 @@ _LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema({
     vol.Required('id'): cv.string,
     vol.Required('mqtt_topic'): cv.string,
-    #vol.Required('processor', default=True): cv.boolean,
-    #vol.Required('system_load', default=True): cv.boolean,
-    #vol.Required('memory', default=True): cv.boolean,
-    #vol.Optional('password'): cv.string,
-    #vol.Required('https', default=False): cv.boolean,
 })
 
 

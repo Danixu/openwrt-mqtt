@@ -28,12 +28,12 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
         hass.async_create_task(self.async_subscribe_to_topic(f"{config_entry.data["mqtt_topic"]}/#"))
 
     async def async_subscribe_to_topic(self, topic):
-        """Función que maneja la suscripción y guarda la función de desuscripción."""
-        # Esperar a que la suscripción termine y guardar el desuscriptor
+        """Function that manage the subscription and store the unsubscribe function."""
+        # Wait until the suscription is done and store the unsubscribe function
         self._unsubscribe = await async_subscribe(self.hass, topic, self._received_message)
 
     async def async_unsubscribe_from_topic(self):
-        """Desuscribirse si la función de desuscripción fue definida."""
+        """Unsubscribe if the function was defined."""
         if self._unsubscribe:
             self._unsubscribe()
             self._unsubscribe = None
