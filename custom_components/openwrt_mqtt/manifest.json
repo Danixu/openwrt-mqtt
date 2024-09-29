@@ -2,7 +2,6 @@
     "domain": "openwrt_mqtt",
     "name": "OpenWRT MQTT",
     "version": "0.0.1",
-    "icon": "icons/openwrt.png",
     "documentation": "https://github.com/Danixu/openwrt-mqtt",
     "dependencies": [
         "mqtt"
@@ -12,8 +11,13 @@
     ],
     "requirements": [],
     "loggers": [
-        "custom_components.openwrt_mqtt"
+        "custom_components.openwrt_mqtt",
+        "custom_components.openwrt_mqtt.coordinator",
+        "custom_components.openwrt_mqtt.sensor"
     ],
     "iot_class": "local_polling",
-    "config_flow": true
+    "config_flow": true,
+    "mqtt": [
+        "openwrt/#"
+    ]
 }

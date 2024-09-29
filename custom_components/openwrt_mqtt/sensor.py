@@ -67,9 +67,13 @@ class MyEntity(Entity):
     @property
     def device_info(self):
         device_info = {
-            "identifiers": {(DOMAIN, self.entry.data['id'])},
+            "identifiers": {(DOMAIN, self.entry.entry_id)},
             "name": f"{self.entry.data['id']}: {self.device_name}",
             "manufacturer": "OpenWRT",
         }
         _LOGGER.debug(f"Device Info: {device_info}")
         return device_info
+
+    @property
+    def icon(self):
+        return "mdi:chip"
