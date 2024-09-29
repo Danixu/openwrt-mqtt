@@ -6,12 +6,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.core import HomeAssistant
 from homeassistant.components.mqtt import async_subscribe
 
-_LOGGER = logging.getLogger(__name__)
+from .constants import DOMAIN
 
-class coordinatorDevice():
-    def __init__(self):
-        self.registered = False
-        self.entities = {}
+_LOGGER = logging.getLogger(__name__)
 
 class OpenWRTMqttCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, config_entry):
@@ -23,13 +20,23 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
         )
         self.config_entry = config_entry
         self.devices = {}
+        self._unsubscribe = None
 
         _LOGGER.setLevel(logging.DEBUG)
 
-        hass.async_create_task(
-            async_subscribe(hass, f"{config_entry.data["mqtt_topic"]}/#", self._received_message)
-        )
+        # Subscribe to the topic
+        hass.async_create_task(self.async_subscribe_to_topic(f"{config_entry.data["mqtt_topic"]}/#"))
 
+    async def async_subscribe_to_topic(self, topic):
+        """Función que maneja la suscripción y guarda la función de desuscripción."""
+        # Esperar a que la suscripción termine y guardar el desuscriptor
+        self._unsubscribe = await async_subscribe(self.hass, topic, self._received_message)
+
+    async def async_unsubscribe_from_topic(self):
+        """Desuscribirse si la función de desuscripción fue definida."""
+        if self._unsubscribe:
+            self._unsubscribe()
+            self._unsubscribe = None
 
     async def _async_update_data(self):
         return self.devices
@@ -52,7 +59,6 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
 
         if not entity_found:
             _LOGGER.debug("Unable to extract the data from the topic.")
-            return
         else:
             _LOGGER.debug(
                 f"Detected a device {entity_found.groups()[0]} with an entity {entity_found.groups()[1]}"
@@ -65,7 +71,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                 return
             
             # Check if the group already exists and if not, create it
-            if not device_group in self.devices:
+            if device_group not in self.devices:
                 self.devices[device_group]= {}
 
             # Now just update the entity data:

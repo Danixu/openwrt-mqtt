@@ -1,7 +1,6 @@
 from homeassistant import config_entries
 import homeassistant.helpers.config_validation as cv
 from .constants import DOMAIN
-#from .coordinator import new_ubus_client
 
 import logging
 import voluptuous as vol
@@ -30,9 +29,6 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA
             )
         _LOGGER.debug(f"Input: {user_input}")
-        #await self.async_set_unique_id(user_input["address"])
-        #self._abort_if_unique_id_configured()
-        #ubus = new_ubus_client(self.hass, user_input)
-        #await ubus.api_list() # Check connection
+
         title = f"{user_input["id"]}"
         return self.async_create_entry(title=title, data=user_input)

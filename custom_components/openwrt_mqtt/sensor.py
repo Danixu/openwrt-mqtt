@@ -1,41 +1,48 @@
+import logging
+
 from homeassistant.helpers.entity import Entity
 from .constants import DOMAIN
 
-async def async_setup_entry(hass, entry, async_add_entities):
-    coordinador = hass.data[DOMAIN][entry.entry_id]
+_LOGGER = logging.getLogger(__name__)
 
-    # Creamos un contenedor para las entidades dinámicas si no existe
+async def async_setup_entry(hass, entry, async_add_entities):
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    _LOGGER.setLevel(logging.DEBUG)
+
+    # Create a container for the entitiesif it doesn't exists.
     if "entities" not in hass.data[DOMAIN]:
         hass.data[DOMAIN]["entities"] = {}
 
     # Función para actualizar las entidades dinámicamente
-    async def actualizar_entidades():
-        entidades_nuevas = []
+    async def entities_update():
+        new_entities = []
+        _LOGGER.debug(entry.data)
         
         # Iterar sobre los dispositivos y sensores en el coordinador
-        for device_name, sensors in coordinador.devices.items():
+        for device_name, sensors in coordinator.devices.items():
             for sensor_name in sensors:
-                unique_id = f"{device_name}_{sensor_name}"
+                unique_id = f"{entry.data['id']}_{device_name}_{sensor_name}"
                 
                 # Verificar si la entidad ya existe
                 if unique_id not in hass.data[DOMAIN]["entities"]:
-                    entidad = MiEntidad(coordinador, device_name, sensor_name)
-                    hass.data[DOMAIN]["entities"][unique_id] = entidad
-                    entidades_nuevas.append(entidad)
+                    entity = MiEntidad(coordinator, entry, device_name, sensor_name)
+                    hass.data[DOMAIN]["entities"][unique_id] = entity
+                    new_entities.append(entity)
 
         # Añadir nuevas entidades a Home Assistant si existen
-        if entidades_nuevas:
-            async_add_entities(entidades_nuevas)
+        if new_entities:
+            async_add_entities(new_entities)
 
     # Ejecutar la primera actualización
-    await actualizar_entidades()
+    await entities_update()
 
     # Actualizar dinámicamente cuando el coordinador se actualice
-    coordinador.async_add_listener(lambda: hass.async_create_task(actualizar_entidades()))
+    coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
 
 class MiEntidad(Entity):
-    def __init__(self, coordinador, device_name, sensor_name):
+    def __init__(self, coordinador, entry, device_name, sensor_name):
         self.coordinador = coordinador
+        self.entry = entry
         self.device_name = device_name
         self.sensor_name = sensor_name
         self._state = None
@@ -46,7 +53,7 @@ class MiEntidad(Entity):
 
     @property
     def unique_id(self):
-        return f"{self.device_name}_{self.sensor_name}"
+        return f"{self.entry.data['id']}_{self.device_name}_{self.sensor_name}"
 
     @property
     def state(self):
@@ -59,8 +66,10 @@ class MiEntidad(Entity):
 
     @property
     def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.device_name)},
-            "name": self.device_name,
+        device_info = {
+            "identifiers": {(DOMAIN, self.entry.data['id'])},
+            "name": f"{self.entry.data['id']}: {self.device_name}",
             "manufacturer": "OpenWRT",
         }
+        _LOGGER.debug(f"Device Info: {device_info}")
+        return device_info
