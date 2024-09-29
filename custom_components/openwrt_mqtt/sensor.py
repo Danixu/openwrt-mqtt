@@ -62,5 +62,5 @@ class MiEntidad(Entity):
         return {
             "identifiers": {(DOMAIN, self.device_name)},
             "name": self.device_name,
-            "manufacturer": "MiFabricante",
+            "manufacturer": "OpenWRT",
         }

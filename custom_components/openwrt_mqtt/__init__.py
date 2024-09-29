@@ -18,14 +18,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug(entry.data)
 
     # Crear el coordinador de datos
-    coordinador = OpenWRTMqttCoordinator(hass, entry)
+    coordinator = OpenWRTMqttCoordinator(hass, entry)
 
     # Primera actualización de datos
-    await coordinador.async_config_entry_first_refresh()
+    await coordinator.async_config_entry_first_refresh()
 
-    hass.data[DOMAIN][entry.entry_id] = coordinador
+    hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Registrar la plataforma de sensores
+    # Register the new sensors platform
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
     )
