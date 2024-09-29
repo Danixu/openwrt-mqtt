@@ -1,24 +1,26 @@
-import logging
-from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-
-from .coordinator import MqttSensorCoordinator
-
 from .constants import DOMAIN
+from .coordinator import MiCoordinadorDeDatos
 
-_LOGGER = logging.getLogger(__name__)
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    hass.data.setdefault(DOMAIN, {})
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    _LOGGER.setLevel(logging.DEBUG)
+    # Crear el coordinador de datos
+    coordinador = MiCoordinadorDeDatos(hass, entry)
+
+    # Primera actualización de datos
+    await coordinador.async_config_entry_first_refresh()
+
+    hass.data[DOMAIN][entry.entry_id] = coordinador
+
+    # Registrar la plataforma de sensores
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+    )
+
     return True
 
-async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEntry) -> bool:
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN]["devices"] = {}
-    device_id = entry.data.get("id")
-
-    # Crear un coordinador para el dispositivo
-    coordinator = MqttSensorCoordinator(hass, entry)
-    hass.data[DOMAIN]["devices"][device_id] = coordinator
-
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    await hass.config_entries.async_forward_entry_unload(entry, "sensor")
     return True
