@@ -46,20 +46,21 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
 
 class PercentEntity(Entity):
+    _attr_unit_of_measurement = "%"
     def __init__(self, coordinador, entry, sensor_data, name):
         self.coordinador = coordinador
         self.entry = entry
-        self._name = name
         self.sensor_data = sensor_data
+
+        self._attr_entity_registry_enabled_default = self.sensor_data["sensor_data"].get("enabled_default", False)
+        self._attr_name = name
+        self._attr_icon = self.sensor_data["sensor_data"]["icon"]
+        self._attr_unique_id = f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
+        if self.sensor_data["sensor_data"].get("diagnostic", False):
+            _attr_entity_category = EntityCategory.DIAGNOSTIC
+        else:
+            _attr_entity_category = None
         self._state = None
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def unique_id(self):
-        return f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
 
     @property
     def state(self):
@@ -80,18 +81,3 @@ class PercentEntity(Entity):
         }
         _LOGGER.debug(f"Device Info: {device_info}")
         return device_info
-
-    @property
-    def icon(self):
-        return self.sensor_data["sensor_data"]["icon"]
-    
-    @property
-    def unit_of_measurement(self):
-        return "%"
-    
-    @property
-    def entity_category(self):
-        if self.sensor_data["sensor_data"].get("diagnostic"):
-            return EntityCategory.DIAGNOSTIC
-        else:
-            return None
