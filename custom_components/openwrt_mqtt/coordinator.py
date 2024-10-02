@@ -6,7 +6,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.core import HomeAssistant
 from homeassistant.components.mqtt import async_subscribe
 
-from .constants import DOMAIN
+from .constants import DOMAIN, ALLOWED_SENSORS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
 
     def _determine_entity_device_group(self, entity_name):
         if re.match("cpu-[\\d]+", entity_name):
-            return "Processor"
+            return "processor"
         
         return None
 
@@ -70,10 +70,19 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug("The device group for the device %s cannot be determined." % entity_found.groups()[0])
                 return
             
+            if not ALLOWED_SENSORS.get(device_group, {}).get(entity_found.groups()[1], None):
+                _LOGGER.debug(f"The sensor {device_group} of the device group {entity_found.groups()[1]} is not allowed.")
+                return
+            
             # Check if the group already exists and if not, create it
             if device_group not in self.devices:
                 self.devices[device_group]= {}
 
             # Now just update the entity data:
-            sensor_name = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}"
-            self.devices[device_group][sensor_name] = msg.payload
+            sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}"
+            self.devices[device_group][sensor_id] = {
+                "sensor_data": ALLOWED_SENSORS[device_group][entity_found.groups()[1]],
+                "extracted_data": entity_found.groups(),
+                "device_group": device_group,
+                "value": msg.payload
+            }
