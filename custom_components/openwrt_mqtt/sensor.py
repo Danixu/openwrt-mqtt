@@ -16,7 +16,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     # Function to dynamically update the entities.
     async def entities_update():
         new_entities = []
-        _LOGGER.debug(entry.data)
+        _LOGGER.debug("Updating entities")
         
         # Iterate over the devices and sensor in the coordinator
         for device_name, sensors in coordinator.devices.items():
@@ -37,6 +37,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
         # Add the new entities to Home Assistant if there is any new
         if new_entities:
+            _LOGGER.debug("There are new entities. Creating it...")
             async_add_entities(new_entities.copy())
 
     # Execute the first update
@@ -66,7 +67,17 @@ class PercentEntity(Entity):
     def state(self):
         # Get the current state from the coordinator
         sensor_id = f"{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
-        return self.coordinador.devices[self.sensor_data["device_group"]][sensor_id]["value"]
+        _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
+        value = None
+        try:
+            value = float(self.coordinador.devices[self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
+            value = round(value, 2)
+
+        except Exception as e:
+            _LOGGER.warning("The sensor %s value cannot be converted to float: %s", self._attr_name, e)
+        
+        _LOGGER.debug("Value: %f", value)
+        return value
 
     async def async_update(self):
         # Request a data update to the coordinator

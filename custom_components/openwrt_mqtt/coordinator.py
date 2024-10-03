@@ -16,7 +16,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"{config_entry.data["id"]} Coortinator",
-            update_interval=timedelta(minutes=1),  # Update it every minute
+            update_interval=timedelta(seconds=30),  # Update it every minute
         )
         self.config_entry = config_entry
         self.devices = {}
@@ -25,6 +25,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
         _LOGGER.setLevel(logging.DEBUG)
 
         # Subscribe to the topic
+        _LOGGER.debug(f"Suscribing to the topic {config_entry.data["mqtt_topic"]}/#")
         hass.async_create_task(self.async_subscribe_to_topic(f"{config_entry.data["mqtt_topic"]}/#"))
 
     async def async_subscribe_to_topic(self, topic):
