@@ -6,12 +6,8 @@ from .constants import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     _LOGGER.setLevel(logging.DEBUG)
-
-    # Create a container for the entities if it doesn't exists.
-    if "entities" not in hass.data[DOMAIN]:
-        hass.data[DOMAIN]["entities"] = {}
 
     # Function to dynamically update the entities.
     async def entities_update():
@@ -19,12 +15,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
         _LOGGER.debug("Updating entities")
         
         # Iterate over the devices and sensor in the coordinator
-        for device_name, sensors in coordinator.devices.items():
+        for device_name, sensors in hass.data[DOMAIN][entry.entry_id]["devices"].items():
             for sensor_name, sensor_data in sensors.items():
                 unique_id = f"{entry.data['id']}_{device_name}_{sensor_name}"
                 
                 # Verificar si la entidad ya existe
-                if unique_id not in hass.data[DOMAIN]["entities"]:
+                if unique_id not in hass.data[DOMAIN][entry.entry_id]["entities"]:
                     name = sensor_data["sensor_data"]["name"]
                     entity = None
                     if device_name == "processor":
@@ -32,7 +28,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
                     if sensor_data["sensor_data"]["sensor_type"] == "percent":
                         entity = PercentEntity(coordinator, entry, sensor_data, name)
-                    hass.data[DOMAIN]["entities"][unique_id] = entity
+                    hass.data[DOMAIN][entry.entry_id]["entities"][unique_id] = entity
                     new_entities.append(entity)
 
         # Add the new entities to Home Assistant if there is any new
@@ -70,7 +66,7 @@ class PercentEntity(Entity):
         _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
         value = None
         try:
-            value = float(self.coordinador.devices[self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
+            value = float(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
             value = round(value, 2)
 
         except Exception as e:

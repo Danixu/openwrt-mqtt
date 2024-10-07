@@ -11,22 +11,22 @@ from .constants import DOMAIN, ALLOWED_SENSORS
 _LOGGER = logging.getLogger(__name__)
 
 class OpenWRTMqttCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass: HomeAssistant, config_entry):
+    def __init__(self, hass: HomeAssistant, entry):
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{config_entry.data["id"]} Coortinator",
+            name=f"{entry.data["id"]} Coortinator",
             update_interval=timedelta(seconds=30),  # Update it every minute
         )
-        self.config_entry = config_entry
-        self.devices = {}
+        self.entry = entry
+        self.hass = hass
         self._unsubscribe = None
 
         _LOGGER.setLevel(logging.DEBUG)
 
         # Subscribe to the topic
-        _LOGGER.debug(f"Suscribing to the topic {config_entry.data["mqtt_topic"]}/#")
-        hass.async_create_task(self.async_subscribe_to_topic(f"{config_entry.data["mqtt_topic"]}/#"))
+        _LOGGER.debug(f"Suscribing to the topic {entry.data["mqtt_topic"]}/#")
+        hass.async_create_task(self.async_subscribe_to_topic(f"{entry.data["mqtt_topic"]}/#"))
 
     async def async_subscribe_to_topic(self, topic):
         """Function that manage the subscription and store the unsubscribe function."""
@@ -40,7 +40,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
             self._unsubscribe = None
 
     async def _async_update_data(self):
-        return self.devices
+        return self.hass.data[DOMAIN][self.entry.entry_id]["devices"]
 
 
     def _determine_entity_device_group(self, entity_name):
@@ -76,12 +76,12 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                 return
             
             # Check if the group already exists and if not, create it
-            if device_group not in self.devices:
-                self.devices[device_group]= {}
+            if device_group not in self.hass.data[DOMAIN][self.entry.entry_id]["devices"]:
+                self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group]= {}
 
             # Now just update the entity data:
             sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}"
-            self.devices[device_group][sensor_id] = {
+            self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group][sensor_id] = {
                 "sensor_data": ALLOWED_SENSORS[device_group][entity_found.groups()[1]],
                 "extracted_data": entity_found.groups(),
                 "device_group": device_group,
