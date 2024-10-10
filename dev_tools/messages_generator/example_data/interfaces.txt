@@ -1,0 +1,47 @@
+Mensaje 15 recibido en openwrt/AP3000-Caldera/interface-wlan1/if_dropped a las 23:53:
+1728424408.937:0:0
+QoS: 0 - Retain: false
+Mensaje 14 recibido en openwrt/AP3000-Caldera/interface-wlan1/if_errors a las 23:53:
+1728424408.937:0:0
+QoS: 0 - Retain: false
+Mensaje 13 recibido en openwrt/AP3000-Caldera/interface-wlan1/if_octets a las 23:53:
+1728424408.937:0:119.300996243587
+QoS: 0 - Retain: false
+Mensaje 12 recibido en openwrt/AP3000-Caldera/interface-wlan1/if_packets a las 23:53:
+1728424408.937:0:0.900007478787312
+QoS: 0 - Retain: false
+Mensaje 11 recibido en openwrt/AP3000-Caldera/interface-wlan0/if_dropped a las 23:53:
+1728424408.937:0:0
+QoS: 0 - Retain: false
+Mensaje 10 recibido en openwrt/AP3000-Caldera/interface-wlan0/if_errors a las 23:53:
+1728424408.937:0:0
+QoS: 0 - Retain: false
+Mensaje 9 recibido en openwrt/AP3000-Caldera/interface-wlan0/if_octets a las 23:53:
+1728424408.937:49.8670053298757:153.13437331915
+QoS: 0 - Retain: false
+Mensaje 8 recibido en openwrt/AP3000-Caldera/interface-wlan0/if_packets a las 23:53:
+1728424408.937:0.766672522292389:1.30000992910449
+QoS: 0 - Retain: false
+Mensaje 7 recibido en openwrt/AP3000-Caldera/interface-br-lan/if_dropped a las 23:53:
+1728424408.937:0.366669464360331:0
+QoS: 0 - Retain: false
+Mensaje 6 recibido en openwrt/AP3000-Caldera/interface-br-lan/if_octets a las 23:53:
+1728424408.937:1494.24473829388:1556.81188251003
+QoS: 0 - Retain: false
+Mensaje 5 recibido en openwrt/AP3000-Caldera/interface-br-lan/if_errors a las 23:53:
+1728424408.937:0:0
+QoS: 0 - Retain: false
+Mensaje 4 recibido en openwrt/AP3000-Caldera/interface-eth0/if_octets a las 23:53:
+1728424408.937:1669.93367159954:1658.26700256964
+QoS: 0 - Retain: false
+Mensaje 3 recibido en openwrt/AP3000-Caldera/interface-eth0/if_errors a las 23:53:
+1728424408.937:0:0
+QoS: 0 - Retain: false
+Mensaje 2 recibido en openwrt/AP3000-Caldera/interface-eth0/if_packets a las 23:53:
+1728424408.937:10.533334981075:8.76666803804662
+QoS: 0 - Retain: false
+Mensaje 1 recibido en openwrt/AP3000-Caldera/interface-br-lan/if_packets a las 23:53:
+1728424408.937:10.1334105730812:7.80005945427957
+QoS: 0 - Retain: false
+Mensaje 0 recibido en openwrt/AP3000-Caldera/interface-eth0/if_dropped a las 23:53:
+1728424408.937:0:0

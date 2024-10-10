@@ -1,0 +1,8 @@
+Mensaje 2 recibido en openwrt/AP3000-Caldera/load/load a las 23:44:
+1728423889.833:0:0:0
+QoS: 0 - Retain: false
+Mensaje 1 recibido en openwrt/AP3000-Caldera/load/load a las 23:44:
+1728423859.833:0:0:0
+QoS: 0 - Retain: false
+Mensaje 0 recibido en openwrt/AP3000-Caldera/load/load a las 23:43:
+1728423829.833:0:0:0

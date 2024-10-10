@@ -1,0 +1,5 @@
+Mensaje 2 recibido en openwrt/AP3000-Caldera/contextswitch/contextswitch a las 8:17:
+1728454638.222:506.433719444328
+QoS: 0 - Retain: false
+Mensaje 1 recibido en openwrt/AP3000-Caldera/contextswitch/contextswitch a las 8:16:
+1728454608.222:578.600080470255

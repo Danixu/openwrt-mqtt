@@ -1,0 +1,33 @@
+Mensaje 87 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-CLOSING a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 86 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-LISTEN a las 8:38:
+1728455931.759:1
+QoS: 0 - Retain: false
+Mensaje 85 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-LAST_ACK a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 84 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-CLOSE_WAIT a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 83 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-CLOSED a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 82 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-TIME_WAIT a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 81 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-FIN_WAIT2 a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 80 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-FIN_WAIT1 a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 79 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-SYN_RECV a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 78 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-SYN_SENT a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false
+Mensaje 77 recibido en openwrt/AP3000-Caldera/tcpconns-22-local/tcp_connections-ESTABLISHED a las 8:38:
+1728455931.759:0
+QoS: 0 - Retain: false

@@ -1,0 +1,92 @@
+Mensaje 30 recibido en openwrt/AP3000-Caldera/processes/fork_rate a las 8:26:
+1728455169.723:1.43346528238647
+QoS: 0 - Retain: false
+Mensaje 29 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_pagefaults a las 8:26:
+1728455169.723:0:0
+QoS: 0 - Retain: false
+Mensaje 28 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_count a las 8:26:
+1728455169.723:1:1
+QoS: 0 - Retain: false
+Mensaje 27 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_cputime a las 8:26:
+1728455169.723:0:0
+QoS: 0 - Retain: false
+Mensaje 26 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_stacksize a las 8:26:
+1728455169.723:549541170240
+QoS: 0 - Retain: false
+Mensaje 25 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_code a las 8:26:
+1728455169.723:962560
+QoS: 0 - Retain: false
+Mensaje 24 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_cputime a las 8:26:
+1728455169.723:0:0
+QoS: 0 - Retain: false
+Mensaje 23 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_data a las 8:26:
+1728455169.723:36864
+QoS: 0 - Retain: false
+Mensaje 22 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_rss a las 8:26:
+1728455169.723:786432
+QoS: 0 - Retain: false
+Mensaje 21 recibido en openwrt/AP3000-Caldera/processes-dropbear/ps_vm a las 8:26:
+1728455169.723:1159168
+QoS: 0 - Retain: false
+Mensaje 20 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_pagefaults a las 8:26:
+1728455169.723:0:0
+QoS: 0 - Retain: false
+Mensaje 19 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_count a las 8:26:
+1728455169.723:2:2
+QoS: 0 - Retain: false
+Mensaje 18 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_stacksize a las 8:26:
+1728455169.723:1098782249760
+QoS: 0 - Retain: false
+Mensaje 17 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_code a las 8:26:
+1728455169.723:2830336
+QoS: 0 - Retain: false
+Mensaje 16 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_data a las 8:26:
+1728455169.723:1441792
+QoS: 0 - Retain: false
+Mensaje 15 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_cputime a las 8:26:
+1728455169.723:0:1333.45299497357
+QoS: 0 - Retain: false
+Mensaje 14 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_rss a las 8:26:
+1728455169.723:2326528
+QoS: 0 - Retain: false
+Mensaje 13 recibido en openwrt/AP3000-Caldera/processes-dnsmasq/ps_vm a las 8:26:
+1728455169.723:4628480
+QoS: 0 - Retain: false
+Mensaje 12 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_pagefaults a las 8:26:
+1728455169.723:30.9361123398232:0
+QoS: 0 - Retain: false
+Mensaje 11 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_count a las 8:26:
+1728455169.723:1:1
+QoS: 0 - Retain: false
+Mensaje 10 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_stacksize a las 8:26:
+1728455169.723:548870726032
+QoS: 0 - Retain: false
+Mensaje 9 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_code a las 8:26:
+1728455169.723:2727936
+QoS: 0 - Retain: false
+Mensaje 8 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_data a las 8:26:
+1728455169.723:237568
+QoS: 0 - Retain: false
+Mensaje 7 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_rss a las 8:26:
+1728455169.723:2224128
+QoS: 0 - Retain: false
+Mensaje 6 recibido en openwrt/AP3000-Caldera/processes-uhttpd/ps_vm a las 8:26:
+1728455169.723:3178496
+QoS: 0 - Retain: false
+Mensaje 5 recibido en openwrt/AP3000-Caldera/processes/ps_state-blocked a las 8:26:
+1728455169.723:0
+QoS: 0 - Retain: false
+Mensaje 4 recibido en openwrt/AP3000-Caldera/processes/ps_state-paging a las 8:26:
+1728455169.723:0
+QoS: 0 - Retain: false
+Mensaje 3 recibido en openwrt/AP3000-Caldera/processes/ps_state-stopped a las 8:26:
+1728455169.723:0
+QoS: 0 - Retain: false
+Mensaje 2 recibido en openwrt/AP3000-Caldera/processes/ps_state-zombies a las 8:26:
+1728455169.723:0
+QoS: 0 - Retain: false
+Mensaje 1 recibido en openwrt/AP3000-Caldera/processes/ps_state-sleeping a las 8:26:
+1728455169.723:56
+QoS: 0 - Retain: false
+Mensaje 0 recibido en openwrt/AP3000-Caldera/processes/ps_state-running a las 8:26:
+1728455169.723:1

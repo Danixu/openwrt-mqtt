@@ -1,0 +1,8 @@
+Mensaje 2 recibido en openwrt/AP3000-Caldera/sensors-cpu_thermal-virtual-0/temperature-temp1 a las 8:28:
+1728455307.000:45.553
+QoS: 0 - Retain: false
+Mensaje 1 recibido en openwrt/AP3000-Caldera/sensors-mt7915_phy0-isa-18000000/temperature-temp1 a las 8:28:
+1728455307.000:42
+QoS: 0 - Retain: false
+Mensaje 0 recibido en openwrt/AP3000-Caldera/sensors-mt7915_phy1-isa-18000000/temperature-temp1 a las 8:28:
+1728455307.000:42

@@ -6,37 +6,43 @@ import time
 
 from paho.mqtt import client as mqtt_client
 
-"""
-openwrt/AP3000-Caldera/cpu-0/percent-system: 1727934089.686:0.133645172068159
-openwrt/AP3000-Caldera/cpu-1/percent-idle: 1727934089.687:99.8325519089082
-openwrt/AP3000-Caldera/cpu-1/percent-steal: 1727934089.687:0
-openwrt/AP3000-Caldera/cpu-1/percent-softirq: 1727934089.686:0.0669792364367046
-openwrt/AP3000-Caldera/cpu-1/percent-interrupt: 1727934089.686:0.0334896182183523
-openwrt/AP3000-Caldera/cpu-1/percent-nice: 1727934089.686:0
-openwrt/AP3000-Caldera/cpu-1/percent-wait: 1727934089.686:0
-openwrt/AP3000-Caldera/cpu-1/percent-system: 1727934089.686:0.0669792364367046
-openwrt/AP3000-Caldera/cpu-1/percent-user: 1727934089.686:0
-openwrt/AP3000-Caldera/cpu-0/percent-idle: 1727934089.686:99.6992983628466
-openwrt/AP3000-Caldera/cpu-0/percent-steal: 1727934089.686:0
-openwrt/AP3000-Caldera/cpu-0/percent-softirq: 1727934089.686:0.133645172068159
-openwrt/AP3000-Caldera/cpu-0/percent-interrupt: 1727934089.686:0.0334112930170398
-openwrt/AP3000-Caldera/cpu-0/percent-nice: 1727934089.686:0
-openwrt/AP3000-Caldera/cpu-0/percent-wait: 1727934089.686:0
-openwrt/AP3000-Caldera/cpu-0/percent-user: 1727934089.686:0
-"""
-
 MQTT_HOST = "localhost"
 MQTT_PORT = 1883
 MQTT_USER = ""
 MQTT_PASS = ""
 MQTT_CLIENT_ID = f'messages-generator-{random.randint(0, 1000)}'
-MQTT_TOPIC = "openwrt/Testing-Router"
+MQTT_TOPIC = "openwrt"
 MQTT_FIRST_RECONNECT_DELAY = 1
 MQTT_RECONNECT_RATE = 2
 MQTT_MAX_RECONNECT_COUNT = 12
 MQTT_MAX_RECONNECT_DELAY = 60
 
-OPENWRT_SIMULATED_PROCESSORS = 2
+OPENWRT_ROUTERS_NAME = [
+    "OpenWRT-Garage",
+    "OpenWRT-Outside"
+]
+OPENWRT_CONFS = {
+    "max_conntrack": 15360,
+    "simulated_cpu": 2
+}
+MESSAGES_DELAY = 30
+
+MESSAGES_GROUPS = {
+    "conntrack": True,
+    "contextswitch": True,
+    "dhcpleases": False,
+    "interfaces": False,
+    "ipstatistics": False,
+    "memory": False,
+    "processes": False,
+    "processor": True,
+    "sensors": False,
+    "systemload": False,
+    "tcpconnections": False,
+    "thermal": False,
+    "uptime": False,
+    "wireless": False
+}
 
 def connect_mqtt():
     def on_connect(client, userdata, flags, rc, properties):
@@ -74,7 +80,48 @@ def connect_mqtt():
     client.connect(MQTT_HOST, MQTT_PORT)
     return client
 
-def publish_processor(client, scheduler):
+def publish_conntrack(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/conntrack"
+    epoch = time.time()
+    current_conntracks = random.randint(0, OPENWRT_CONFS["max_conntrack"]+1)
+    
+    # Sent the three messages
+    result = client.publish(f"{publish_topic_prefix}/conntrack", f"{epoch}:{current_conntracks}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{current_conntracks}` to topic `{publish_topic_prefix}/conntrack`")
+    else:
+        print(f"Failed to send `{epoch}:{current_conntracks}` to topic `{publish_topic_prefix}/conntrack`")
+
+    result = client.publish(f"{publish_topic_prefix}/conntrack-max", f"{epoch}:{OPENWRT_CONFS["max_conntrack"]}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{OPENWRT_CONFS["max_conntrack"]}` to topic `{publish_topic_prefix}/conntrack-max`")
+    else:
+        print(f"Failed to send `{epoch}:{OPENWRT_CONFS["max_conntrack"]}` to topic `{publish_topic_prefix}/conntrack-max`")
+
+    percent = round(current_conntracks / OPENWRT_CONFS["max_conntrack"] * 100, 16)
+    result = client.publish(f"{publish_topic_prefix}/percent-used", f"{epoch}:{percent}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{percent}` to topic `{publish_topic_prefix}/percent-used`")
+    else:
+        print(f"Failed to send `{epoch}:{percent}` to topic `{publish_topic_prefix}/percent-used`")
+
+    scheduler.enter(MESSAGES_DELAY, 1, publish_conntrack, (client, topic, scheduler))
+
+def publish_contextswitch(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/contextswitch"
+    epoch = time.time()
+    current_contextswitch = random.uniform(0.0, 10000.0)
+    
+    # Sent the three messages
+    result = client.publish(f"{publish_topic_prefix}/contextswitch", f"{epoch}:{current_contextswitch}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{current_contextswitch}` to topic `{publish_topic_prefix}/contextswitch`")
+    else:
+        print(f"Failed to send `{epoch}:{current_contextswitch}` to topic `{publish_topic_prefix}/contextswitch`")
+
+    scheduler.enter(MESSAGES_DELAY, 1, publish_contextswitch, (client, topic, scheduler))
+
+def publish_processor(client, topic, scheduler):
     """This function send some openwrt example data to the MQTT topic"""
     values = [
         "percent-system",
@@ -86,8 +133,8 @@ def publish_processor(client, scheduler):
         "percent-wait",
         "percent-user"
     ]
-    for i in range(OPENWRT_SIMULATED_PROCESSORS):
-        publish_topic_prefix = f"{MQTT_TOPIC}/cpu-{i}/"
+    for i in range(OPENWRT_CONFS["simulated_cpu"]):
+        publish_topic_prefix = f"{topic}/cpu-{i}/"
         for value in values:
             epoch = time.time()
             percent = random.uniform(0.0, 100.0)
@@ -99,14 +146,23 @@ def publish_processor(client, scheduler):
             else:
                 print(f"Failed to send `{epoch}:{percent}` to topic `{publish_topic}`")
 
-    scheduler.enter(30, 1, publish_processor, (client, scheduler))
+    scheduler.enter(MESSAGES_DELAY, 1, publish_processor, (client, topic, scheduler))
 
 def run():
     client = connect_mqtt()
     client.loop_start()
 
     my_scheduler = sched.scheduler(time.time, time.sleep)
-    my_scheduler.enter(5, 1, publish_processor, (client, my_scheduler))
+    for router in OPENWRT_ROUTERS_NAME:
+        if MESSAGES_GROUPS["conntrack"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_conntrack, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["contextswitch"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_contextswitch, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["processor"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_processor, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+            
+
+
     my_scheduler.run()
 
     client.loop_stop()

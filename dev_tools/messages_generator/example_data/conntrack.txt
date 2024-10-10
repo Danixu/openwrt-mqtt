@@ -1,0 +1,9 @@
+Mensaje 7 recibido en openwrt/AP3000-Caldera/conntrack/conntrack a las 23:52:
+1728424322.437:13
+QoS: 0 - Retain: false
+Mensaje 6 recibido en openwrt/AP3000-Caldera/conntrack/percent-used a las 23:52:
+1728424322.437:0.0846354166666667
+QoS: 0 - Retain: false
+Mensaje 5 recibido en openwrt/AP3000-Caldera/conntrack/conntrack-max a las 23:52:
+1728424322.437:15360
+QoS: 0 - Retain: false
