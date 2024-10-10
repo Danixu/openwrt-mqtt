@@ -43,12 +43,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
             if device_id not in hass.data[DOMAIN][entry.entry_id]["entities"]:
                 entity = None
 
-                if device_data["type"] == "percent":
-                    entity = PercentEntity(coordinator, entry, device_data["data"], device_data["name"])
-                elif device_data["type"] == "numeric":
-                    entity = NumericEntity(coordinator, entry, device_data["data"], device_data["name"])
+                if device_data["type"] == "numeric":
+                    entity = NumericEntity(
+                        coordinator, entry, device_data["data"], device_data["name"],
+                        device_data["data"].get("unit", None),                        
+                    )
                 elif device_data["type"] == "float":
-                    entity = FloatEntity(coordinator, entry, device_data["data"], device_data["name"])
+                    entity = FloatEntity(
+                        coordinator, entry, device_data["data"], device_data["name"], 
+                        device_data["data"].get("unit", None),
+                        device_data["data"].get("precision", None),
+                    )
                 else:
                     _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
                                     "Please, report this to the developer.", device_data["type"])
@@ -69,10 +74,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
 
 class FloatEntity(Entity):
-    def __init__(self, coordinador, entry, sensor_data, name):
+    def __init__(self, coordinador, entry, sensor_data, name, unit = "", precision = 10):
         self.coordinador = coordinador
         self.entry = entry
         self.sensor_data = sensor_data
+        self.precision = precision
 
         self._attr_entity_registry_enabled_default = self.sensor_data["sensor_data"].get("enabled_default", False)
         self._attr_name = name
@@ -80,7 +86,7 @@ class FloatEntity(Entity):
         self._attr_unique_id = f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if self.sensor_data["sensor_data"].get("diagnostic", False) else None
         self._state = None
-        self._attr_unit_of_measurement = ""
+        self._attr_unit_of_measurement = unit
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
@@ -91,9 +97,10 @@ class FloatEntity(Entity):
         value = None
         try:
             value = float(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
+            value = round(value, self.precision)
 
         except Exception as e:
-            _LOGGER.warning("The sensor %s value cannot be converted to int: %s", self._attr_name, e)
+            _LOGGER.warning("The sensor %s value cannot be converted to float: %s", self._attr_name, e)
         
         _LOGGER.debug("Value: %f", value)
         return value
@@ -113,7 +120,7 @@ class FloatEntity(Entity):
         return device_info
 
 class NumericEntity(Entity):
-    def __init__(self, coordinador, entry, sensor_data, name):
+    def __init__(self, coordinador, entry, sensor_data, name, unit = ""):
         self.coordinador = coordinador
         self.entry = entry
         self.sensor_data = sensor_data
@@ -124,7 +131,7 @@ class NumericEntity(Entity):
         self._attr_unique_id = f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if self.sensor_data["sensor_data"].get("diagnostic", False) else None
         self._state = None
-        self._attr_unit_of_measurement = ""
+        self._attr_unit_of_measurement = unit
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
@@ -140,51 +147,6 @@ class NumericEntity(Entity):
             _LOGGER.warning("The sensor %s value cannot be converted to int: %s", self._attr_name, e)
         
         _LOGGER.debug("Value: %d%%", value)
-        return value
-
-    async def async_update(self):
-        # Request a data update to the coordinator
-        await self.coordinador.async_request_refresh()
-
-    @property
-    def device_info(self):
-        device_info = {
-            "identifiers": {(DOMAIN, self.entry.entry_id)},
-            "name": f"OpenWRT Device: {self.entry.data['id']}",
-            "manufacturer": "OpenWRT",
-        }
-        _LOGGER.debug(f"Device Info: {device_info}")
-        return device_info
-
-class PercentEntity(Entity):   
-    def __init__(self, coordinador, entry, sensor_data, name):
-        self.coordinador = coordinador
-        self.entry = entry
-        self.sensor_data = sensor_data
-
-        self._attr_entity_registry_enabled_default = self.sensor_data["sensor_data"].get("enabled_default", False)
-        self._attr_name = name
-        self._attr_icon = self.sensor_data["sensor_data"]["icon"]
-        self._attr_unique_id = f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if self.sensor_data["sensor_data"].get("diagnostic", False) else None
-        self._state = None
-        self._attr_unit_of_measurement = "%"
-        self._attr_state_class = SensorStateClass.MEASUREMENT
-
-    @property
-    def state(self):
-        # Get the current state from the coordinator
-        sensor_id = f"{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
-        _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
-        value = None
-        try:
-            value = float(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
-            value = round(value, 2)
-
-        except Exception as e:
-            _LOGGER.warning("The sensor %s value cannot be converted to float: %s", self._attr_name, e)
-        
-        _LOGGER.debug("Value: %f", value)
         return value
 
     async def async_update(self):
