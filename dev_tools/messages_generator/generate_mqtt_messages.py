@@ -28,14 +28,14 @@ OPENWRT_CONFS = {
 MESSAGES_DELAY = 30
 
 MESSAGES_GROUPS = {
-    "conntrack": True,
-    "contextswitch": True,
+    "conntrack": False,
+    "contextswitch": False,
     "dhcpleases": False,
     "interfaces": False,
     "ipstatistics": False,
     "memory": False,
     "processes": False,
-    "processor": True,
+    "processor": False,
     "sensors": False,
     "systemload": False,
     "tcpconnections": False,
@@ -80,6 +80,7 @@ def connect_mqtt():
     client.connect(MQTT_HOST, MQTT_PORT)
     return client
 
+
 def publish_conntrack(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/conntrack"
     epoch = time.time()
@@ -107,6 +108,7 @@ def publish_conntrack(client, topic, scheduler):
 
     scheduler.enter(MESSAGES_DELAY, 1, publish_conntrack, (client, topic, scheduler))
 
+
 def publish_contextswitch(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/contextswitch"
     epoch = time.time()
@@ -120,6 +122,72 @@ def publish_contextswitch(client, topic, scheduler):
         print(f"Failed to send `{epoch}:{current_contextswitch}` to topic `{publish_topic_prefix}/contextswitch`")
 
     scheduler.enter(MESSAGES_DELAY, 1, publish_contextswitch, (client, topic, scheduler))
+
+
+def publish_dhcpleases(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/dhcpleases"
+    epoch = time.time()
+    current_dhcpleases = random.randint(0, 500)
+    
+    # Sent the three messages
+    result = client.publish(f"{publish_topic_prefix}/count", f"{epoch}:{current_dhcpleases}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{current_dhcpleases}` to topic `{publish_topic_prefix}/count`")
+    else:
+        print(f"Failed to send `{epoch}:{current_dhcpleases}` to topic `{publish_topic_prefix}/count`")
+
+    scheduler.enter(MESSAGES_DELAY, 1, publish_dhcpleases, (client, topic, scheduler))
+
+
+def publish_memory(client, topic, scheduler):
+    """
+    Publish the router memory messages to the MQTT topic.
+    
+    I Know, the numbers doesn't matches a real system, but is just for testing ;)
+    """
+    publish_topic_prefix = f"{topic}/memory"
+    epoch = time.time()
+    numeric = [
+        "memory-buffered",
+        "memory-cached",
+        "memory-free",
+        "memory-slab_recl",
+        "memory-slab_unrecl",
+        "memory-used"
+    ]
+    percentage = [
+        "percent-buffered",
+        "percent-cached",
+        "percent-free",
+        "percent-slab_recl",
+        "percent-slab_unrecl",
+        "percent-used"
+    ]
+    
+    for item in numeric:
+        current = random.randint(0, 1048576)
+    
+        # Sent the three messages
+        result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{current}` to topic `{publish_topic_prefix}/{item}`")
+        else:
+            print(f"Failed to send `{epoch}:{current}` to topic `{publish_topic_prefix}/{item}`")
+
+    for item in percentage:
+        current = random.uniform(0.0, 100.0)
+    
+        # Sent the three messages
+        result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{current}` to topic `{publish_topic_prefix}/{item}`")
+        else:
+            print(f"Failed to send `{epoch}:{current}` to topic `{publish_topic_prefix}/{item}`")
+
+    scheduler.enter(MESSAGES_DELAY, 1, publish_memory, (client, topic, scheduler))
+
+
+
 
 def publish_processor(client, topic, scheduler):
     """This function send some openwrt example data to the MQTT topic"""
@@ -158,6 +226,10 @@ def run():
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_conntrack, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["contextswitch"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_contextswitch, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["dhcpleases"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_dhcpleases, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["memory"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_memory, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["processor"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_processor, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
             

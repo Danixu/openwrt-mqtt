@@ -44,10 +44,13 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
 
 
     def _determine_entity_device_group(self, entity_name):
-        if entity_name == "conntrack":
-            return "conntrack"
-        elif entity_name == "contextswitch":
-            return "contextswitch"
+        if entity_name in [
+            "conntrack",
+            "contextswitch",
+            "dhcpleases",
+            "memory"
+        ]:
+            return entity_name
         elif re.match("cpu-[\\d]+", entity_name):
             return "processor"
         

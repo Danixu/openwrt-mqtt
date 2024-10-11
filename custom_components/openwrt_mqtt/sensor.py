@@ -46,13 +46,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
                 if device_data["type"] == "numeric":
                     entity = NumericEntity(
                         coordinator, entry, device_data["data"], device_data["name"],
-                        device_data["data"].get("unit", None),                        
+                        device_data["data"]["sensor_data"].get("unit", ""),                        
                     )
                 elif device_data["type"] == "float":
                     entity = FloatEntity(
                         coordinator, entry, device_data["data"], device_data["name"], 
-                        device_data["data"].get("unit", None),
-                        device_data["data"].get("precision", None),
+                        device_data["data"]["sensor_data"].get("unit", ""),
+                        device_data["data"]["sensor_data"].get("precision", 10),
                     )
                 else:
                     _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
@@ -102,7 +102,7 @@ class FloatEntity(Entity):
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted to float: %s", self._attr_name, e)
         
-        _LOGGER.debug("Value: %f", value)
+        _LOGGER.debug("Value: %f%s", value, self._attr_unit_of_measurement)
         return value
 
     async def async_update(self):
@@ -146,7 +146,7 @@ class NumericEntity(Entity):
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted to int: %s", self._attr_name, e)
         
-        _LOGGER.debug("Value: %d%%", value)
+        _LOGGER.debug("Value: %d%s", value, self._attr_unit_of_measurement)
         return value
 
     async def async_update(self):

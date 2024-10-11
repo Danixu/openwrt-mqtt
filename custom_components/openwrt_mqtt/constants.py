@@ -2,6 +2,7 @@
 DOMAIN = 'openwrt_mqtt'
 ICONS = {
     "processor": "mdi:chip",
+    "memory": "mdi:memory",
     "conntrack": "mdi:lan-connect",
     "contextswitch": "mdi:swap-horizontal"
 }
@@ -34,6 +35,100 @@ ALLOWED_SENSORS = {
             "icon": ICONS["contextswitch"],
             "enabled_default": True
         }
+    },
+    "dhcpleases": {
+        "count": {
+            "name": "DHCP Leases",
+            "sensor_type": "numeric",
+            "icon": "mdi:router",
+            "enabled_default": True
+        }
+    },
+    "memory": {
+        "memory-buffered": {
+            "name": "Memory: Buffered",
+            "sensor_type": "numeric",
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "memory-cached": {
+            "name": "Memory: Cached",
+            "sensor_type": "numeric",
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "memory-free": {
+            "name": "Memory: Free",
+            "sensor_type": "numeric",
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "memory-slab_recl": {
+            "name": "Memory: Slab Reclaimable",
+            "sensor_type": "numeric",
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "memory-slab_unrecl": {
+            "name": "Memory: Slab Unreclaimable",
+            "sensor_type": "numeric",
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "memory-used": {
+            "name": "Memory: Used",
+            "sensor_type": "numeric",
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "percent-buffered": {
+            "name": "Memory: Percent Buffered",
+            "sensor_type": "float",
+            "unit": "%",
+            "precision": 2,
+            "icon": ICONS["memory"],
+            "enabled_default": True
+        },
+        "percent-cached": {
+            "name": "Memory: Percent Cached",
+            "sensor_type": "float",
+            "unit": "%",
+            "precision": 2,
+            "icon": ICONS["memory"],
+            "enabled_default": True
+        },
+        "percent-free": {
+            "name": "Memory: Percent Free",
+            "sensor_type": "float",
+            "unit": "%",
+            "precision": 2,
+            "icon": ICONS["memory"],
+            "enabled_default": True
+        },
+        "percent-slab_recl": {
+            "name": "Memory: Percent Slab Reclaimable",
+            "sensor_type": "float",
+            "unit": "%",
+            "precision": 2,
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "percent-slab_unrecl": {
+            "name": "Memory: Pecent Slab Unreclaimable",
+            "sensor_type": "float",
+            "unit": "%",
+            "precision": 2,
+            "icon": ICONS["memory"],
+            "diagnostic": True
+        },
+        "percent-used": {
+            "name": "Memory: Percent Used",
+            "sensor_type": "float",
+            "unit": "%",
+            "precision": 2,
+            "icon": ICONS["memory"],
+            "enabled_default": True
+        },
     },
     "processor": {
         "percent-idle": {
