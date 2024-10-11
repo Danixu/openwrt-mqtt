@@ -9,183 +9,292 @@ ICONS = {
 ALLOWED_SENSORS = {
     "conntrack": {
         "conntrack": {
-            "name": "Conntrack: Used",
             "sensor_type": "numeric",
             "icon": ICONS["conntrack"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Conntrack: Used"
+                }
+            ]
         },
         "conntrack-max": {
-            "name": "Conntrack: Max",
             "sensor_type": "numeric",
             "icon": ICONS["conntrack"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Conntrack: Max"
+                }
+            ]
         },
         "percent-used": {
-            "name": "Conntrack: Used (%)",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["conntrack"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Conntrack: Used (%)"
+                }
+            ]
         }
     },
     "contextswitch": {
         "contextswitch": {
-            "name": "Context Switch",
             "sensor_type": "float",
             "icon": ICONS["contextswitch"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Context Switch"
+                }
+            ]
         }
     },
     "dhcpleases": {
         "count": {
-            "name": "DHCP Leases",
             "sensor_type": "numeric",
             "icon": "mdi:router",
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "DHCP Leases"
+                }
+            ]
         }
     },
     "memory": {
         "memory-buffered": {
-            "name": "Memory: Buffered",
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Buffered"
+                }
+            ]
         },
         "memory-cached": {
-            "name": "Memory: Cached",
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Cached"
+                }
+            ]
         },
         "memory-free": {
-            "name": "Memory: Free",
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Free"
+                }
+            ]
         },
         "memory-slab_recl": {
-            "name": "Memory: Slab Reclaimable",
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Slab Reclaimable"
+                }
+            ]
         },
         "memory-slab_unrecl": {
-            "name": "Memory: Slab Unreclaimable",
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Slab Unreclaimable"
+                }
+            ]
         },
         "memory-used": {
-            "name": "Memory: Used",
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Used"
+                }
+            ]
         },
         "percent-buffered": {
-            "name": "Memory: Percent Buffered",
             "sensor_type": "float",
             "unit": "%",
             "precision": 2,
             "icon": ICONS["memory"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Memory: Percent Buffered"
+                }
+            ]
         },
         "percent-cached": {
-            "name": "Memory: Percent Cached",
             "sensor_type": "float",
             "unit": "%",
             "precision": 2,
             "icon": ICONS["memory"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Memory: Percent Cached"
+                }
+            ]
         },
         "percent-free": {
-            "name": "Memory: Percent Free",
             "sensor_type": "float",
             "unit": "%",
             "precision": 2,
             "icon": ICONS["memory"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Memory: Percent Free"
+                }
+            ]
         },
         "percent-slab_recl": {
-            "name": "Memory: Percent Slab Reclaimable",
             "sensor_type": "float",
             "unit": "%",
             "precision": 2,
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Percent Slab Reclaimable"
+                }
+            ]
         },
         "percent-slab_unrecl": {
-            "name": "Memory: Pecent Slab Unreclaimable",
             "sensor_type": "float",
             "unit": "%",
             "precision": 2,
             "icon": ICONS["memory"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Memory: Pecent Slab Unreclaimable"
+                }
+            ]
         },
         "percent-used": {
-            "name": "Memory: Percent Used",
             "sensor_type": "float",
             "unit": "%",
             "precision": 2,
             "icon": ICONS["memory"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Memory: Percent Used"
+                }
+            ]
         },
     },
     "processor": {
         "percent-idle": {
-            "name": "Processor {!s}: Idle",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: Idle"
+                }
+            ]
         },
         "percent-interrupt": {
-            "name": "Processor {!s}: Interrupt",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: Interrupt"
+                }
+            ]
         },
         "percent-nice": {
-            "name": "Processor {!s}: Nice",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: Nice"
+                }
+            ]
         },
         "percent-softirq": {
-            "name": "Processor {!s}: SoftIRQ",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: SoftIRQ"
+                }
+            ]
         },
         "percent-steal": {
-            "name": "Processor {!s}: Steal",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: Steal"
+                }
+            ]
         },
         "percent-system": {
-            "name": "Processor {!s}: System",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: System"
+                }
+            ]
         },
         "percent-user": {
-            "name": "Processor {!s}: User",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "enabled_default": True
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: User"
+                }
+            ]
         },
         "percent-wait": {
-            "name": "Processor {!s}: Wait",
             "sensor_type": "float",
             "unit": "%",
+            "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True
+            "diagnostic": True,
+            "partitions": [
+                {
+                    "name": "Processor {!s}: Wait"
+                }
+            ]
         }
     }
 }

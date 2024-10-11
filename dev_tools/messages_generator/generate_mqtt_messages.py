@@ -33,7 +33,7 @@ MESSAGES_GROUPS = {
     "dhcpleases": False,
     "interfaces": False,
     "ipstatistics": False,
-    "memory": False,
+    "memory": True,
     "processes": False,
     "processor": False,
     "sensors": False,

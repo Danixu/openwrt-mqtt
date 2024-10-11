@@ -87,10 +87,19 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                 self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group]= {}
 
             # Now just update the entity data:
-            sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}"
-            self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group][sensor_id] = {
-                "sensor_data": ALLOWED_SENSORS[device_group][entity_found.groups()[1]],
-                "extracted_data": entity_found.groups(),
-                "device_group": device_group,
-                "value": msg.payload
-            }
+            splitted_values = msg.payload.split(":")
+            if len(ALLOWED_SENSORS[device_group][entity_found.groups()[1]]["partitions"]) != (len(splitted_values) - 1):
+                _LOGGER.warning(f"The sensor {device_group} of the device group {entity_found.groups()[1]} partitions doesn't matches the template. Sensor will not be changed.")
+                return
+            
+            for idx, partition in enumerate(ALLOWED_SENSORS[device_group][entity_found.groups()[1]]["partitions"]):
+                sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
+                self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group][sensor_id] = {
+                    "sensor_config": ALLOWED_SENSORS[device_group][entity_found.groups()[1]],
+                    "extracted_data": entity_found.groups(),
+                    "sensor_id": sensor_id,
+                    "device_group": device_group,
+                    "timestamp": splitted_values[0],
+                    "name": partition["name"],
+                    "value": splitted_values[(1 + idx)]
+                }

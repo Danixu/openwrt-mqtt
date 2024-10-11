@@ -11,14 +11,14 @@ def get_devices(id, devices):
     out_devices = {}
     for device_type, sensors in devices.items():
         for sensor_name, sensor_data in sensors.items():
-            name = sensor_data["sensor_data"]["name"]
+            name = sensor_data["name"]
 
             if device_type == "processor":
                 name = name.format(sensor_data["extracted_data"][0].upper())
 
             out_devices[f"{id}_{device_type}_{sensor_name}"] = {
                 "name": name,
-                "type": sensor_data["sensor_data"]["sensor_type"],
+                "type": sensor_data["sensor_config"]["sensor_type"],
                 "data": sensor_data
             }
     
@@ -44,16 +44,9 @@ async def async_setup_entry(hass, entry, async_add_entities):
                 entity = None
 
                 if device_data["type"] == "numeric":
-                    entity = NumericEntity(
-                        coordinator, entry, device_data["data"], device_data["name"],
-                        device_data["data"]["sensor_data"].get("unit", ""),                        
-                    )
+                    entity = NumericEntity(coordinator, entry, device_data)
                 elif device_data["type"] == "float":
-                    entity = FloatEntity(
-                        coordinator, entry, device_data["data"], device_data["name"], 
-                        device_data["data"]["sensor_data"].get("unit", ""),
-                        device_data["data"]["sensor_data"].get("precision", 10),
-                    )
+                    entity = FloatEntity(coordinator, entry, device_data)
                 else:
                     _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
                                     "Please, report this to the developer.", device_data["type"])
@@ -74,29 +67,29 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
 
 class FloatEntity(Entity):
-    def __init__(self, coordinador, entry, sensor_data, name, unit = "", precision = 10):
+    def __init__(self, coordinador, entry, sensor_data):
         self.coordinador = coordinador
         self.entry = entry
         self.sensor_data = sensor_data
-        self.precision = precision
+        self.precision = sensor_data["data"]["sensor_config"].get("precision", 10)
 
-        self._attr_entity_registry_enabled_default = self.sensor_data["sensor_data"].get("enabled_default", False)
-        self._attr_name = name
-        self._attr_icon = self.sensor_data["sensor_data"]["icon"]
-        self._attr_unique_id = f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if self.sensor_data["sensor_data"].get("diagnostic", False) else None
+        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
+        self._attr_name = sensor_data["name"]
+        self._attr_icon = sensor_data["data"]["sensor_config"]["icon"]
+        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
         self._state = None
-        self._attr_unit_of_measurement = unit
+        self._attr_unit_of_measurement = sensor_data["data"]["sensor_config"].get("unit", "")
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
     def state(self):
         # Get the current state from the coordinator
-        sensor_id = f"{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
+        sensor_id = self.sensor_data["data"]["sensor_id"]
         _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
         value = None
         try:
-            value = float(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
+            value = float(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"])
             value = round(value, self.precision)
 
         except Exception as e:
@@ -120,28 +113,28 @@ class FloatEntity(Entity):
         return device_info
 
 class NumericEntity(Entity):
-    def __init__(self, coordinador, entry, sensor_data, name, unit = ""):
+    def __init__(self, coordinador, entry, sensor_data):
         self.coordinador = coordinador
         self.entry = entry
         self.sensor_data = sensor_data
 
-        self._attr_entity_registry_enabled_default = self.sensor_data["sensor_data"].get("enabled_default", False)
-        self._attr_name = name
-        self._attr_icon = self.sensor_data["sensor_data"]["icon"]
-        self._attr_unique_id = f"{self.entry.data['id']}_{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if self.sensor_data["sensor_data"].get("diagnostic", False) else None
+        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
+        self._attr_name = sensor_data["name"]
+        self._attr_icon = sensor_data["data"]["sensor_config"]["icon"]
+        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
         self._state = None
-        self._attr_unit_of_measurement = unit
+        self._attr_unit_of_measurement = sensor_data["data"]["sensor_config"].get("unit", "")
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
     def state(self):
         # Get the current state from the coordinator
-        sensor_id = f"{self.sensor_data["extracted_data"][0]}_{self.sensor_data["extracted_data"][1]}"
+        sensor_id = self.sensor_data["data"]["sensor_id"]
         _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
         value = None
         try:
-            value = int(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["device_group"]][sensor_id]["value"].split(":")[1])
+            value = int(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"])
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted to int: %s", self._attr_name, e)
