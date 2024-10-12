@@ -73,10 +73,10 @@ ALLOWED_SENSORS = {
             "unit": "packets",
             "partitions": [
                 {
-                    "name": "Interface {!s}: Dropped/s TX"
+                    "name": "Interface {!s}: Dropped/s (TX)"
                 },
                 {
-                    "name": "Interface {!s}: Dropped/s RX"
+                    "name": "Interface {!s}: Dropped/s (RX)"
                 }
             ]
         },
@@ -87,10 +87,10 @@ ALLOWED_SENSORS = {
             "unit": "packets",
             "partitions": [
                 {
-                    "name": "Interface {!s}: Errors/s TX"
+                    "name": "Interface {!s}: Errors/s (TX)"
                 },
                 {
-                    "name": "Interface {!s}: Errors/s RX"
+                    "name": "Interface {!s}: Errors/s (RX)"
                 }
             ]
         },
@@ -101,10 +101,10 @@ ALLOWED_SENSORS = {
             "precision": 2,
             "partitions": [
                 {
-                    "name": "Interface {!s}: Bandwidth TX"
+                    "name": "Interface {!s}: Bandwidth (TX)"
                 },
                 {
-                    "name": "Interface {!s}: Bandwidth RX"
+                    "name": "Interface {!s}: Bandwidth (RX)"
                 }
             ]
         },
@@ -116,10 +116,35 @@ ALLOWED_SENSORS = {
             "precision": 2,
             "partitions": [
                 {
-                    "name": "Interface {!s}: Packets/s TX"
+                    "name": "Interface {!s}: Packets/s (TX)"
                 },
                 {
-                    "name": "Interface {!s}: Packets/s RX"
+                    "name": "Interface {!s}: Packets/s (RX)"
+                }
+            ]
+        }
+    },
+    "ipstatistics-all": {
+        "ip_stats_octets": {
+            "sensor_type": "octetstomb",
+            "enabled_default": True,
+            "precision": 2,
+            "partitions": [
+                {
+                    "name": "IP Statistics: IPv4 (RX)",
+                    "icon": "mdi:upload-network-outline"
+                },
+                {
+                    "name": "IP Statistics: IPv4 (TX)",
+                    "icon": "mdi:download-network-outline"
+                },
+                {
+                    "name": "IP Statistics: IPv6 (RX)",
+                    "icon": "mdi:upload-network-outline"
+                },
+                {
+                    "name": "IP Statistics: IPv6 (TX)",
+                    "icon": "mdi:download-network-outline"
                 }
             ]
         }

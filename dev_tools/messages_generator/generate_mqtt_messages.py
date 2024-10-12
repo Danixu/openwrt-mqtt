@@ -32,7 +32,7 @@ MESSAGES_GROUPS = {
     "contextswitch": False,
     "dhcpleases": False,
     "interfaces": False,
-    "ipstatistics": False,
+    "ipstatistics": True,
     "memory": False,
     "processes": False,
     "processor": False,
@@ -142,7 +142,6 @@ def publish_dhcpleases(client, topic, scheduler):
 def publish_interfaces(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/interface-wlan0"
     epoch = time.time()
-    current_dhcpleases = random.randint(0, 500)
     
     # Sent the four messages
     first_value = random.randint(0, 500)
@@ -181,6 +180,24 @@ def publish_interfaces(client, topic, scheduler):
         print(f"Failed to send `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_packets`")
 
     scheduler.enter(MESSAGES_DELAY, 1, publish_interfaces, (client, topic, scheduler))
+
+
+def publish_ipstatistics(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/ipstatistics-all"
+    epoch = time.time()
+    
+    # Sent the four messages
+    first_value = random.uniform(0.0, 900000000)
+    second_value = random.uniform(0.0, 900000000)
+    third_value = random.uniform(0.0, 900000000)
+    fourth_value = random.uniform(0.0, 900000000)
+    result = client.publish(f"{publish_topic_prefix}/ip_stats_octets", f"{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}` to topic `{publish_topic_prefix}/ip_stats_octets`")
+    else:
+        print(f"Failed to send `{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}` to topic `{publish_topic_prefix}/ip_stats_octets`")
+    
+    scheduler.enter(MESSAGES_DELAY, 1, publish_ipstatistics, (client, topic, scheduler))
 
 
 def publish_memory(client, topic, scheduler):
@@ -276,6 +293,8 @@ def run():
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_interfaces, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["memory"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_memory, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["ipstatistics"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_ipstatistics, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["processor"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_processor, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
             

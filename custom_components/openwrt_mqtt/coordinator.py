@@ -48,6 +48,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
             "conntrack",
             "contextswitch",
             "dhcpleases",
+            "ipstatistics-all",
             "memory"
         ]:
             return entity_name
@@ -101,6 +102,10 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                     "extracted_data": entity_found.groups(),
                     "sensor_id": sensor_id,
                     "device_group": device_group,
+                    "icon": partition.get(
+                        "icon",
+                        ALLOWED_SENSORS[device_group][entity_found.groups()[1]].get("icon", "mdi:cancel")
+                    ),
                     "timestamp": splitted_values[0],
                     "name": partition["name"],
                     "value": splitted_values[(1 + idx)]

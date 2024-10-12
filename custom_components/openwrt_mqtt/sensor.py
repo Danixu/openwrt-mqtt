@@ -81,7 +81,7 @@ class FloatEntity(Entity):
 
         self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
         self._attr_name = sensor_data["name"]
-        self._attr_icon = sensor_data["data"]["sensor_config"]["icon"]
+        self._attr_icon = sensor_data["data"]["icon"]
         self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
         self._state = None
@@ -126,7 +126,7 @@ class NumericEntity(Entity):
 
         self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
         self._attr_name = sensor_data["name"]
-        self._attr_icon = sensor_data["data"]["sensor_config"]["icon"]
+        self._attr_icon = sensor_data["data"]["icon"]
         self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
         self._state = None
@@ -171,7 +171,7 @@ class OctectsToMB(Entity):
 
         self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
         self._attr_name = sensor_data["name"]
-        self._attr_icon = sensor_data["data"]["sensor_config"]["icon"]
+        self._attr_icon = sensor_data["data"]["icon"]
         self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
         self._state = None
