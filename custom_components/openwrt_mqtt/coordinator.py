@@ -53,6 +53,8 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
             return entity_name
         elif re.match("cpu-[\\d]+", entity_name):
             return "processor"
+        elif re.match("interface-.+", entity_name):
+            return "interface"
         
         return None
 

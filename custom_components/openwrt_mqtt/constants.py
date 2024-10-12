@@ -65,6 +65,65 @@ ALLOWED_SENSORS = {
             ]
         }
     },
+    "interface": {
+        "if_dropped": {
+            "sensor_type": "numeric",
+            "icon": "mdi:router",
+            "diagnostic": True,
+            "unit": "packets",
+            "partitions": [
+                {
+                    "name": "Interface {!s}: Dropped/s TX"
+                },
+                {
+                    "name": "Interface {!s}: Dropped/s RX"
+                }
+            ]
+        },
+        "if_errors": {
+            "sensor_type": "numeric",
+            "icon": "mdi:router",
+            "diagnostics": True,
+            "unit": "packets",
+            "partitions": [
+                {
+                    "name": "Interface {!s}: Errors/s TX"
+                },
+                {
+                    "name": "Interface {!s}: Errors/s RX"
+                }
+            ]
+        },
+        "if_octets": {
+            "sensor_type": "octetstomb",
+            "icon": "mdi:router",
+            "enabled_default": True,
+            "precision": 2,
+            "partitions": [
+                {
+                    "name": "Interface {!s}: Bandwidth TX"
+                },
+                {
+                    "name": "Interface {!s}: Bandwidth RX"
+                }
+            ]
+        },
+        "if_packets": {
+            "sensor_type": "float",
+            "icon": "mdi:router",
+            "enabled_default": True,
+            "unit": "packets",
+            "precision": 2,
+            "partitions": [
+                {
+                    "name": "Interface {!s}: Packets/s TX"
+                },
+                {
+                    "name": "Interface {!s}: Packets/s RX"
+                }
+            ]
+        }
+    },
     "memory": {
         "memory-buffered": {
             "sensor_type": "numeric",

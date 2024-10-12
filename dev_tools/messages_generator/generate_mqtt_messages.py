@@ -33,7 +33,7 @@ MESSAGES_GROUPS = {
     "dhcpleases": False,
     "interfaces": False,
     "ipstatistics": False,
-    "memory": True,
+    "memory": False,
     "processes": False,
     "processor": False,
     "sensors": False,
@@ -129,7 +129,7 @@ def publish_dhcpleases(client, topic, scheduler):
     epoch = time.time()
     current_dhcpleases = random.randint(0, 500)
     
-    # Sent the three messages
+    # Sent the message
     result = client.publish(f"{publish_topic_prefix}/count", f"{epoch}:{current_dhcpleases}")
     if result[0] == 0:
         print(f"Sent `{epoch}:{current_dhcpleases}` to topic `{publish_topic_prefix}/count`")
@@ -137,6 +137,50 @@ def publish_dhcpleases(client, topic, scheduler):
         print(f"Failed to send `{epoch}:{current_dhcpleases}` to topic `{publish_topic_prefix}/count`")
 
     scheduler.enter(MESSAGES_DELAY, 1, publish_dhcpleases, (client, topic, scheduler))
+
+
+def publish_interfaces(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/interface-wlan0"
+    epoch = time.time()
+    current_dhcpleases = random.randint(0, 500)
+    
+    # Sent the four messages
+    first_value = random.randint(0, 500)
+    second_value = random.randint(0, 500)
+    result = client.publish(f"{publish_topic_prefix}/if_dropped", f"{epoch}:{first_value}:{second_value}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_dropped`")
+    else:
+        print(f"Failed to send `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_dropped`")
+    
+    # Sent the four messages
+    first_value = random.randint(0, 500)
+    second_value = random.randint(0, 500)
+    result = client.publish(f"{publish_topic_prefix}/if_errors", f"{epoch}:{first_value}:{second_value}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_errors`")
+    else:
+        print(f"Failed to send `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_errors`")
+
+    # Sent the four messages
+    first_value = random.uniform(0.0, 900000000)
+    second_value = random.uniform(0.0, 900000000)
+    result = client.publish(f"{publish_topic_prefix}/if_octets", f"{epoch}:{first_value}:{second_value}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_octets`")
+    else:
+        print(f"Failed to send `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_octets`")
+
+    # Sent the four messages
+    first_value = random.uniform(0.0, 500.0)
+    second_value = random.uniform(0.0, 500.0)
+    result = client.publish(f"{publish_topic_prefix}/if_packets", f"{epoch}:{first_value}:{second_value}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_packets`")
+    else:
+        print(f"Failed to send `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_packets`")
+
+    scheduler.enter(MESSAGES_DELAY, 1, publish_interfaces, (client, topic, scheduler))
 
 
 def publish_memory(client, topic, scheduler):
@@ -228,6 +272,8 @@ def run():
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_contextswitch, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["dhcpleases"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_dhcpleases, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["interfaces"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_interfaces, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["memory"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_memory, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["processor"]:

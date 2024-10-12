@@ -1,4 +1,5 @@
 import logging
+import re
 
 from homeassistant.helpers.entity import Entity, EntityCategory
 from homeassistant.components.sensor import SensorStateClass
@@ -15,6 +16,9 @@ def get_devices(id, devices):
 
             if device_type == "processor":
                 name = name.format(sensor_data["extracted_data"][0].upper())
+            elif device_type == "interface":
+                interface = re.match("interface-(.+)", sensor_data["extracted_data"][0])
+                name = name.format(interface.groups()[0])
 
             out_devices[f"{id}_{device_type}_{sensor_name}"] = {
                 "name": name,
@@ -47,6 +51,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     entity = NumericEntity(coordinator, entry, device_data)
                 elif device_data["type"] == "float":
                     entity = FloatEntity(coordinator, entry, device_data)
+                elif device_data["type"] == "octetstomb":
+                    entity = OctectsToMB(coordinator, entry, device_data)
                 else:
                     _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
                                     "Please, report this to the developer.", device_data["type"])
@@ -140,6 +146,53 @@ class NumericEntity(Entity):
             _LOGGER.warning("The sensor %s value cannot be converted to int: %s", self._attr_name, e)
         
         _LOGGER.debug("Value: %d%s", value, self._attr_unit_of_measurement)
+        return value
+
+    async def async_update(self):
+        # Request a data update to the coordinator
+        await self.coordinador.async_request_refresh()
+
+    @property
+    def device_info(self):
+        device_info = {
+            "identifiers": {(DOMAIN, self.entry.entry_id)},
+            "name": f"OpenWRT Device: {self.entry.data['id']}",
+            "manufacturer": "OpenWRT",
+        }
+        _LOGGER.debug(f"Device Info: {device_info}")
+        return device_info
+
+class OctectsToMB(Entity):
+    def __init__(self, coordinador, entry, sensor_data):
+        self.coordinador = coordinador
+        self.entry = entry
+        self.sensor_data = sensor_data
+        self.precision = sensor_data["data"]["sensor_config"].get("precision", 10)
+
+        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
+        self._attr_name = sensor_data["name"]
+        self._attr_icon = sensor_data["data"]["sensor_config"]["icon"]
+        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
+        self._state = None
+        self._attr_unit_of_measurement = "MB/s"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def state(self):
+        # Get the current state from the coordinator
+        sensor_id = self.sensor_data["data"]["sensor_id"]
+        _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
+        value = None
+        try:
+            value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"]
+            # Convert the value to MB/s
+            value = round(float(value) / 1048576, self.precision)
+
+        except Exception as e:
+            _LOGGER.warning("The sensor %s value cannot be converted to MB/s: %s", self._attr_name, e)
+        
+        _LOGGER.debug("Value: %f%s", value, self._attr_unit_of_measurement)
         return value
 
     async def async_update(self):
