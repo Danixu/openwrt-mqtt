@@ -23,6 +23,7 @@ OPENWRT_ROUTERS_NAME = [
 ]
 OPENWRT_CONFS = {
     "max_conntrack": 15360,
+    "max_bandwidth": int(1 * 1024 * 1024 * 1024 / 8), # 1 Gbit converted to octets
     "simulated_cpu": 2
 }
 MESSAGES_DELAY = 30
@@ -31,7 +32,7 @@ MESSAGES_GROUPS = {
     "conntrack": False,
     "contextswitch": False,
     "dhcpleases": False,
-    "interfaces": False,
+    "interfaces": True,
     "ipstatistics": True,
     "memory": False,
     "processes": False,
@@ -162,8 +163,8 @@ def publish_interfaces(client, topic, scheduler):
         print(f"Failed to send `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_errors`")
 
     # Sent the four messages
-    first_value = random.uniform(0.0, 900000000)
-    second_value = random.uniform(0.0, 900000000)
+    first_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
+    second_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
     result = client.publish(f"{publish_topic_prefix}/if_octets", f"{epoch}:{first_value}:{second_value}")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_octets`")
@@ -187,10 +188,10 @@ def publish_ipstatistics(client, topic, scheduler):
     epoch = time.time()
     
     # Sent the four messages
-    first_value = random.uniform(0.0, 900000000)
-    second_value = random.uniform(0.0, 900000000)
-    third_value = random.uniform(0.0, 900000000)
-    fourth_value = random.uniform(0.0, 900000000)
+    first_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
+    second_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
+    third_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
+    fourth_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
     result = client.publish(f"{publish_topic_prefix}/ip_stats_octets", f"{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}` to topic `{publish_topic_prefix}/ip_stats_octets`")

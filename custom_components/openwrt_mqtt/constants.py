@@ -95,7 +95,7 @@ ALLOWED_SENSORS = {
             ]
         },
         "if_octets": {
-            "sensor_type": "octetstomb",
+            "sensor_type": "octets",
             "icon": "mdi:router",
             "enabled_default": True,
             "precision": 2,
@@ -126,7 +126,7 @@ ALLOWED_SENSORS = {
     },
     "ipstatistics-all": {
         "ip_stats_octets": {
-            "sensor_type": "octetstomb",
+            "sensor_type": "octets",
             "enabled_default": True,
             "precision": 2,
             "partitions": [
