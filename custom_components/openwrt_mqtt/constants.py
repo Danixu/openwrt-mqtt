@@ -1,5 +1,5 @@
 from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
-from homeassistant.const import UnitOfDataRate, PERCENTAGE
+from homeassistant.const import UnitOfDataRate, UnitOfInformation, PERCENTAGE
 
 """Global module data"""
 DOMAIN = 'openwrt_mqtt'
@@ -105,7 +105,6 @@ ALLOWED_SENSORS = {
             "precision": 2,
             "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
-            "state_class": SensorStateClass.MEASUREMENT,
             "device_class": SensorDeviceClass.DATA_RATE,
             "partitions": [
                 {
@@ -139,7 +138,6 @@ ALLOWED_SENSORS = {
             "precision": 2,
             "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
-            "state_class": SensorStateClass.MEASUREMENT,
             "device_class": SensorDeviceClass.DATA_RATE,
             "partitions": [
                 {
@@ -165,7 +163,10 @@ ALLOWED_SENSORS = {
         "memory-buffered": {
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True,
+            "native_unit_of_measurement": UnitOfInformation.BYTES,
+            "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
+            "device_class": SensorDeviceClass.DATA_SIZE,
+            "enabled_default": False,
             "partitions": [
                 {
                     "name": "Memory: Buffered"
@@ -175,7 +176,10 @@ ALLOWED_SENSORS = {
         "memory-cached": {
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True,
+            "native_unit_of_measurement": UnitOfInformation.BYTES,
+            "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
+            "device_class": SensorDeviceClass.DATA_SIZE,
+            "enabled_default": False,
             "partitions": [
                 {
                     "name": "Memory: Cached"
@@ -185,7 +189,10 @@ ALLOWED_SENSORS = {
         "memory-free": {
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True,
+            "native_unit_of_measurement": UnitOfInformation.BYTES,
+            "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
+            "device_class": SensorDeviceClass.DATA_SIZE,
+            "enabled_default": False,
             "partitions": [
                 {
                     "name": "Memory: Free"
@@ -195,6 +202,9 @@ ALLOWED_SENSORS = {
         "memory-slab_recl": {
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
+            "native_unit_of_measurement": UnitOfInformation.BYTES,
+            "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
+            "device_class": SensorDeviceClass.DATA_SIZE,
             "diagnostic": True,
             "partitions": [
                 {
@@ -205,6 +215,9 @@ ALLOWED_SENSORS = {
         "memory-slab_unrecl": {
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
+            "native_unit_of_measurement": UnitOfInformation.BYTES,
+            "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
+            "device_class": SensorDeviceClass.DATA_SIZE,
             "diagnostic": True,
             "partitions": [
                 {
@@ -215,7 +228,10 @@ ALLOWED_SENSORS = {
         "memory-used": {
             "sensor_type": "numeric",
             "icon": ICONS["memory"],
-            "diagnostic": True,
+            "native_unit_of_measurement": UnitOfInformation.BYTES,
+            "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
+            "device_class": SensorDeviceClass.DATA_SIZE,
+            "enabled_default": False,
             "partitions": [
                 {
                     "name": "Memory: Used"
@@ -301,7 +317,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
-            "diagnostic": True,
+            "enabled_default": False,
             "partitions": [
                 {
                     "name": "Processor {!s}: Idle"

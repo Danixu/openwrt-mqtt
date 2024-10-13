@@ -227,7 +227,7 @@ def publish_memory(client, topic, scheduler):
     ]
     
     for item in numeric:
-        current = random.randint(0, 1048576)
+        current = random.randint(0, 134217728)
     
         # Sent the three messages
         result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}")
