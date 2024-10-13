@@ -72,38 +72,46 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     # Dynamically update when the coordinator is updated
     coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
-
-class FloatEntity(Entity):
+    
+class BaseEntity(SensorEntity):
     def __init__(self, coordinador, entry, sensor_data):
         self.coordinador = coordinador
         self.entry = entry
         self.sensor_data = sensor_data
-        self.precision = sensor_data["data"]["sensor_config"].get("precision", 10)
-
-        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
+        
+        # Sensor attributes
         self._attr_name = sensor_data["name"]
         self._attr_icon = sensor_data["data"]["icon"]
         self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
+        self._attr_suggested_display_precision = sensor_data["data"]["sensor_config"].get("precision", None)
+        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", None)
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
-        self._state = None
-        self._attr_unit_of_measurement = sensor_data["data"]["sensor_config"].get("unit", "")
+        
+        self._attr_native_unit_of_measurement = sensor_data["data"]["sensor_config"].get("native_unit_of_measurement", None)
+        self._attr_suggested_unit_of_measurement = sensor_data["data"]["sensor_config"].get("suggested_unit_of_measurement", None)
         self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_device_class = sensor_data["data"]["sensor_config"].get("device_class", None)
+        
+    def _value_conversion(self, value):
+        """Function to process the original value. The default will be just return the value, 
+        so must be overriden in the derived classes.
 
+        Args:
+            value: The original value of the sensor
+
+        Returns:
+            The converted value of the sensor. Can be a type change (str -> float for example), conversion (bytes -> bits)...
+        """
+        return value
+        
     @property
-    def state(self):
+    def native_value(self):
         # Get the current state from the coordinator
         sensor_id = self.sensor_data["data"]["sensor_id"]
         _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
-        value = None
-        try:
-            value = float(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"])
-            value = round(value, self.precision)
-
-        except Exception as e:
-            _LOGGER.warning("The sensor %s value cannot be converted to float: %s", self._attr_name, e)
-        
-        _LOGGER.debug("Value: %f%s", value, self._attr_unit_of_measurement)
-        return value
+        value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"]
+        # Convert the value using the internal function and return it
+        return self._value_conversion(value)
 
     async def async_update(self):
         # Request a data update to the coordinator
@@ -119,78 +127,16 @@ class FloatEntity(Entity):
         _LOGGER.debug(f"Device Info: {device_info}")
         return device_info
 
-class NumericEntity(Entity):
+
+class FloatEntity(BaseEntity):
     def __init__(self, coordinador, entry, sensor_data):
-        self.coordinador = coordinador
-        self.entry = entry
-        self.sensor_data = sensor_data
+        super().__init__(coordinador, entry, sensor_data)
 
-        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
-        self._attr_name = sensor_data["name"]
-        self._attr_icon = sensor_data["data"]["icon"]
-        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
-        self._state = None
-        self._attr_unit_of_measurement = sensor_data["data"]["sensor_config"].get("unit", "")
-        self._attr_state_class = SensorStateClass.MEASUREMENT
-
-    @property
-    def state(self):
-        # Get the current state from the coordinator
-        sensor_id = self.sensor_data["data"]["sensor_id"]
-        _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
-        value = None
+    def _value_conversion(self, value):
+        # Convert the value from str to float and then from octets to bits.
+        # Bits should not have decimals, so will be converted to int.
         try:
-            value = int(self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"])
-
-        except Exception as e:
-            _LOGGER.warning("The sensor %s value cannot be converted to int: %s", self._attr_name, e)
-        
-        _LOGGER.debug("Value: %d%s", value, self._attr_unit_of_measurement)
-        return value
-
-    async def async_update(self):
-        # Request a data update to the coordinator
-        await self.coordinador.async_request_refresh()
-
-    @property
-    def device_info(self):
-        device_info = {
-            "identifiers": {(DOMAIN, self.entry.entry_id)},
-            "name": f"OpenWRT Device: {self.entry.data['id']}",
-            "manufacturer": "OpenWRT",
-        }
-        _LOGGER.debug(f"Device Info: {device_info}")
-        return device_info
-
-class OctectsEntity(SensorEntity):
-    def __init__(self, coordinador, entry, sensor_data):
-        self.coordinador = coordinador
-        self.entry = entry
-        self.sensor_data = sensor_data
-        self._attr_suggested_display_precision = sensor_data["data"]["sensor_config"].get("precision", 10)
-
-        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", False)
-        self._attr_name = sensor_data["name"]
-        self._attr_icon = sensor_data["data"]["icon"]
-        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
-        self._state = None
-        self._attr_native_unit_of_measurement = UnitOfDataRate.BITS_PER_SECOND
-        self._attr_suggested_unit_of_measurement = UnitOfDataRate.MEGABITS_PER_SECOND
-        self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_class = SensorDeviceClass.DATA_RATE
-
-    @property
-    def native_value(self) -> int:
-        # Get the current state from the coordinator
-        sensor_id = self.sensor_data["data"]["sensor_id"]
-        _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
-        value = None
-        try:
-            value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"]
-            # Convert the value to bits)
-            value = int(round(float(value) * 8, 0))
+            value = float(value)
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
@@ -198,16 +144,36 @@ class OctectsEntity(SensorEntity):
         _LOGGER.debug("Value: %f", value)
         return value
 
-    async def async_update(self):
-        # Request a data update to the coordinator
-        await self.coordinador.async_request_refresh()
 
-    @property
-    def device_info(self):
-        device_info = {
-            "identifiers": {(DOMAIN, self.entry.entry_id)},
-            "name": f"OpenWRT Device: {self.entry.data['id']}",
-            "manufacturer": "OpenWRT",
-        }
-        _LOGGER.debug(f"Device Info: {device_info}")
-        return device_info
+class NumericEntity(BaseEntity):
+    def __init__(self, coordinador, entry, sensor_data):
+        super().__init__(coordinador, entry, sensor_data)
+
+    def _value_conversion(self, value):
+        # Convert the value from str to float and then from octets to bits.
+        # Bits should not have decimals, so will be converted to int.
+        try:
+            value = int(value)
+
+        except Exception as e:
+            _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
+        
+        _LOGGER.debug("Value: %d", value)
+        return value
+
+
+class OctectsEntity(BaseEntity):
+    def __init__(self, coordinador, entry, sensor_data):
+        super().__init__(coordinador, entry, sensor_data)
+
+    def _value_conversion(self, value):
+        # Convert the value from str to float and then from octets to bits.
+        # Bits should not have decimals, so will be converted to int.
+        try:
+            value = int(round(float(value) * 8, 0))
+
+        except Exception as e:
+            _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
+        
+        _LOGGER.debug("Value: %d", value)
+        return value

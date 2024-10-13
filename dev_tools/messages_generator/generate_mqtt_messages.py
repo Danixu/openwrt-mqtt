@@ -32,7 +32,7 @@ MESSAGES_GROUPS = {
     "conntrack": False,
     "contextswitch": False,
     "dhcpleases": False,
-    "interfaces": True,
+    "interfaces": False,
     "ipstatistics": True,
     "memory": False,
     "processes": False,

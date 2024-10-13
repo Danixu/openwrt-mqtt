@@ -1,3 +1,6 @@
+from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
+from homeassistant.const import UnitOfDataRate, PERCENTAGE
+
 """Global module data"""
 DOMAIN = 'openwrt_mqtt'
 ICONS = {
@@ -30,7 +33,7 @@ ALLOWED_SENSORS = {
         },
         "percent-used": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["conntrack"],
             "enabled_default": True,
@@ -44,6 +47,7 @@ ALLOWED_SENSORS = {
     "contextswitch": {
         "contextswitch": {
             "sensor_type": "float",
+            "precision": 2,
             "icon": ICONS["contextswitch"],
             "enabled_default": True,
             "partitions": [
@@ -99,6 +103,10 @@ ALLOWED_SENSORS = {
             "icon": "mdi:router",
             "enabled_default": True,
             "precision": 2,
+            "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
+            "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
+            "state_class": SensorStateClass.MEASUREMENT,
+            "device_class": SensorDeviceClass.DATA_RATE,
             "partitions": [
                 {
                     "name": "Interface {!s}: Bandwidth (TX)"
@@ -129,6 +137,10 @@ ALLOWED_SENSORS = {
             "sensor_type": "octets",
             "enabled_default": True,
             "precision": 2,
+            "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
+            "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
+            "state_class": SensorStateClass.MEASUREMENT,
+            "device_class": SensorDeviceClass.DATA_RATE,
             "partitions": [
                 {
                     "name": "IP Statistics: IPv4 (RX)",
@@ -212,7 +224,7 @@ ALLOWED_SENSORS = {
         },
         "percent-buffered": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["memory"],
             "enabled_default": True,
@@ -224,7 +236,7 @@ ALLOWED_SENSORS = {
         },
         "percent-cached": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["memory"],
             "enabled_default": True,
@@ -236,7 +248,7 @@ ALLOWED_SENSORS = {
         },
         "percent-free": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["memory"],
             "enabled_default": True,
@@ -248,7 +260,7 @@ ALLOWED_SENSORS = {
         },
         "percent-slab_recl": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["memory"],
             "diagnostic": True,
@@ -260,7 +272,7 @@ ALLOWED_SENSORS = {
         },
         "percent-slab_unrecl": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["memory"],
             "diagnostic": True,
@@ -272,7 +284,7 @@ ALLOWED_SENSORS = {
         },
         "percent-used": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["memory"],
             "enabled_default": True,
@@ -286,7 +298,7 @@ ALLOWED_SENSORS = {
     "processor": {
         "percent-idle": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "diagnostic": True,
@@ -298,7 +310,7 @@ ALLOWED_SENSORS = {
         },
         "percent-interrupt": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "diagnostic": True,
@@ -310,7 +322,7 @@ ALLOWED_SENSORS = {
         },
         "percent-nice": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "diagnostic": True,
@@ -322,7 +334,7 @@ ALLOWED_SENSORS = {
         },
         "percent-softirq": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "diagnostic": True,
@@ -334,7 +346,7 @@ ALLOWED_SENSORS = {
         },
         "percent-steal": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "diagnostic": True,
@@ -346,7 +358,7 @@ ALLOWED_SENSORS = {
         },
         "percent-system": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "enabled_default": True,
@@ -358,7 +370,7 @@ ALLOWED_SENSORS = {
         },
         "percent-user": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "enabled_default": True,
@@ -370,7 +382,7 @@ ALLOWED_SENSORS = {
         },
         "percent-wait": {
             "sensor_type": "float",
-            "unit": "%",
+            "native_unit_of_measurement": PERCENTAGE,
             "precision": 2,
             "icon": ICONS["processor"],
             "diagnostic": True,
