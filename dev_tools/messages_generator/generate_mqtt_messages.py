@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import random
 import sched
 import time
@@ -21,6 +22,10 @@ OPENWRT_ROUTERS_NAME = [
     "OpenWRT-Garage",
     "OpenWRT-Outside"
 ]
+OPENWRT_ROUTERS_WLANS = [
+    "wlan0",
+    "wlan1"
+]
 OPENWRT_CONFS = {
     "max_conntrack": 15360,
     "max_bandwidth": int(1 * 1024 * 1024 * 1024 / 8), # 1 Gbit converted to octets
@@ -40,10 +45,12 @@ MESSAGES_GROUPS = {
     "sensors": False,
     "systemload": False,
     "tcpconnections": False,
-    "thermal": True,
+    "thermal": False,
     "uptime": False,
-    "wireless": False
+    "wireless": True
 }
+
+start_time = datetime.datetime.now()
 
 def connect_mqtt():
     def on_connect(client, userdata, flags, rc, properties):
@@ -318,6 +325,77 @@ def publish_thermal(client, topic, scheduler):
     
     scheduler.enter(MESSAGES_DELAY, 1, publish_thermal, (client, topic, scheduler))
 
+
+def publish_uptime(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/uptime"
+    epoch = time.time()
+    
+    # Send the temperature measurement
+    elapsed = datetime.datetime.now() - start_time
+    result = client.publish(f"{publish_topic_prefix}/uptime", f"{epoch}:{elapsed.seconds}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{elapsed.seconds}` to topic `{publish_topic_prefix}/uptime`")
+    else:
+        print(f"Failed to send `{epoch}:{elapsed.seconds}` to topic `{publish_topic_prefix}/uptime`")
+
+    
+    scheduler.enter(MESSAGES_DELAY, 1, publish_uptime, (client, topic, scheduler))
+    
+
+def publish_wireless(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/iwinfo"
+    epoch = time.time()
+    
+    for wl_device in OPENWRT_ROUTERS_WLANS:
+        # Send the stations
+        stations = random.randint(0, 100)
+        topic = f"{publish_topic_prefix}-{wl_device}/stations"
+        result = client.publish(topic, f"{epoch}:{stations}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{stations}` to topic `{topic}`")
+        else:
+            print(f"Failed to send `{epoch}:{stations}` to topic `{topic}`")
+            
+        # Send the Signal Quality
+        signal_quality = -(random.randint(30, 100))
+        topic = f"{publish_topic_prefix}-{wl_device}/signal_quality"
+        result = client.publish(topic, f"{epoch}:{signal_quality}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{signal_quality}` to topic `{topic}`")
+        else:
+            print(f"Failed to send `{epoch}:{signal_quality}` to topic `{topic}`")
+            
+        # Send the Signal Noise
+        signal_noise = -(random.randint(30, 100))
+        topic = f"{publish_topic_prefix}-{wl_device}/signal_noise"
+        result = client.publish(topic, f"{epoch}:{signal_noise}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{signal_noise}` to topic `{topic}`")
+        else:
+            print(f"Failed to send `{epoch}:{signal_noise}` to topic `{topic}`")
+            
+        # Send the Signal Power
+        signal_power = -(random.randint(30, 100))
+        topic = f"{publish_topic_prefix}-{wl_device}/signal_power"
+        result = client.publish(topic, f"{epoch}:{signal_power}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{signal_power}` to topic `{topic}`")
+        else:
+            print(f"Failed to send `{epoch}:{signal_power}` to topic `{topic}`")
+            
+        # Send the bitrate
+        bitrate = random.randint(52000000, 1000000000)
+        topic = f"{publish_topic_prefix}-{wl_device}/bitrate"
+        result = client.publish(topic, f"{epoch}:{bitrate}")
+        if result[0] == 0:
+            print(f"Sent `{epoch}:{bitrate}` to topic `{topic}`")
+        else:
+            print(f"Failed to send `{epoch}:{bitrate}` to topic `{topic}`")
+
+    
+    scheduler.enter(MESSAGES_DELAY, 1, publish_wireless, (client, topic, scheduler))
+
+
 def run():
     client = connect_mqtt()
     client.loop_start()
@@ -342,6 +420,10 @@ def run():
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_systemload, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["thermal"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_thermal, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["uptime"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_uptime, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["wireless"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_wireless, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
             
 
 

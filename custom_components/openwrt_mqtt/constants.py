@@ -1,9 +1,12 @@
 from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
 from homeassistant.const import (
+    PERCENTAGE,
+    SIGNAL_STRENGTH_DECIBELS,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     UnitOfDataRate,
     UnitOfInformation,
     UnitOfTemperature,
-    PERCENTAGE
+    UnitOfTime
 )
 
 """Global module data"""
@@ -437,6 +440,7 @@ ALLOWED_SENSORS = {
         "temperature": {
             "sensor_type": "float",
             "native_unit_of_measurement": UnitOfTemperature.CELSIUS,
+            "device_class": SensorDeviceClass.TEMPERATURE,
             "precision": 2,
             "icon": "mdi:thermometer-lines",
             "enabled_default": True,
@@ -455,6 +459,80 @@ ALLOWED_SENSORS = {
             "partitions": [
                 {
                     "name": "Cooling: {!s}"
+                }
+            ]
+        }
+    },
+    "uptime": {
+        "uptime": {
+            "sensor_type": "numeric",
+            "native_unit_of_measurement": UnitOfTime.SECONDS,
+            "device_class": SensorDeviceClass.DURATION,
+            "icon": "mdi:timelapse",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Uptime"
+                }
+            ]
+        }
+    },
+    "wireless": {
+        "stations": {
+            "sensor_type": "numeric",
+            "icon": "mdi:router-wireless",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Wireless {!s}: Stations"
+                }
+            ]
+        },
+        "signal_quality": {
+            "sensor_type": "numeric",
+            "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
+            "icon": "mdi:router-wireless",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Wireless {!s}: Signal Quality"
+                }
+            ]
+        },
+        "signal_noise": {
+            "sensor_type": "numeric",
+            "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
+            "icon": "mdi:router-wireless",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Wireless {!s}: Signal Noise"
+                }
+            ]
+        },
+        "signal_power": {
+            "sensor_type": "numeric",
+            "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
+            "icon": "mdi:router-wireless",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Wireless {!s}: Signal Power"
+                }
+            ]
+        },
+        "bitrate": {
+            "sensor_type": "numeric",
+            "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
+            "device_class": SensorDeviceClass.DATA_RATE,
+            "icon": "mdi:router-wireless",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Wireless {!s}: Bitrate"
                 }
             ]
         }

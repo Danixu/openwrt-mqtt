@@ -23,6 +23,9 @@ def get_devices(id, devices):
             elif device_type == "thermal-thermal" or device_type == "thermal-cooling":
                 device = re.match("thermal-(thermal|cooling)_(.+)", sensor_data["extracted_data"][0])
                 name = name.format(device.groups()[1].capitalize())
+            elif device_type == "wireless":
+                interface = re.match("iwinfo-(.+)", sensor_data["extracted_data"][0])
+                name = name.format(interface.groups()[0])
 
             out_devices[f"{id}_{device_type}_{sensor_name}"] = {
                 "name": name,

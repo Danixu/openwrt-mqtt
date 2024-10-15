@@ -52,6 +52,8 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
             return "thermal-thermal"
         elif re.match("thermal-cooling_.*", entity_name):
             return "thermal-cooling"
+        elif re.match("iwinfo-.*", entity_name):
+            return "wireless"
         else:
             return entity_name
 
