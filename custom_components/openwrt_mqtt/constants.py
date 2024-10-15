@@ -1,5 +1,10 @@
 from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
-from homeassistant.const import UnitOfDataRate, UnitOfInformation, PERCENTAGE
+from homeassistant.const import (
+    UnitOfDataRate,
+    UnitOfInformation,
+    UnitOfTemperature,
+    PERCENTAGE
+)
 
 """Global module data"""
 DOMAIN = 'openwrt_mqtt'
@@ -405,6 +410,51 @@ ALLOWED_SENSORS = {
             "partitions": [
                 {
                     "name": "Processor {!s}: Wait"
+                }
+            ]
+        }
+    },
+    "load": {
+        "load": {
+            "sensor_type": "float",
+            "precision": 2,
+            "icon": ICONS["processor"],
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "System Load: 1m"
+                },
+                {
+                    "name": "System Load: 5m"
+                },
+                {
+                    "name": "System Load: 15m"
+                }
+            ]
+        }
+    },
+    "thermal-thermal": {
+        "temperature": {
+            "sensor_type": "float",
+            "native_unit_of_measurement": UnitOfTemperature.CELSIUS,
+            "precision": 2,
+            "icon": "mdi:thermometer-lines",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Thermal: {!s}"
+                }
+            ]
+        }
+    },
+    "thermal-cooling": {
+        "gauge": {
+            "sensor_type": "numeric",
+            "icon": "mdi:fan",
+            "enabled_default": True,
+            "partitions": [
+                {
+                    "name": "Cooling: {!s}"
                 }
             ]
         }

@@ -33,14 +33,14 @@ MESSAGES_GROUPS = {
     "contextswitch": False,
     "dhcpleases": False,
     "interfaces": False,
-    "ipstatistics": True,
+    "ipstatistics": False,
     "memory": False,
     "processes": False,
     "processor": False,
     "sensors": False,
     "systemload": False,
     "tcpconnections": False,
-    "thermal": False,
+    "thermal": True,
     "uptime": False,
     "wireless": False
 }
@@ -250,7 +250,6 @@ def publish_memory(client, topic, scheduler):
 
 
 
-
 def publish_processor(client, topic, scheduler):
     """This function send some openwrt example data to the MQTT topic"""
     values = [
@@ -278,6 +277,47 @@ def publish_processor(client, topic, scheduler):
 
     scheduler.enter(MESSAGES_DELAY, 1, publish_processor, (client, topic, scheduler))
 
+
+
+def publish_systemload(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/load"
+    epoch = time.time()
+    
+    # Sent the four messages
+    first_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
+    second_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
+    third_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
+    result = client.publish(f"{publish_topic_prefix}/load", f"{epoch}:{first_value}:{second_value}:{third_value}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}` to topic `{publish_topic_prefix}/load`")
+    else:
+        print(f"Failed to send `{epoch}:{first_value}:{second_value}:{third_value}` to topic `{publish_topic_prefix}/load`")
+    
+    scheduler.enter(MESSAGES_DELAY, 1, publish_systemload, (client, topic, scheduler))
+
+
+def publish_thermal(client, topic, scheduler):
+    publish_topic_prefix = f"{topic}/thermal"
+    epoch = time.time()
+    
+    # Send the temperature measurement
+    temperature = random.uniform(0, 90)
+    result = client.publish(f"{publish_topic_prefix}-thermal_zone0/temperature", f"{epoch}:{temperature}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{temperature}` to topic `{publish_topic_prefix}-thermal_zone0/temperature`")
+    else:
+        print(f"Failed to send `{epoch}:{temperature}` to topic `{publish_topic_prefix}-thermal_zone0/temperature`")
+    
+    # Send the cooling device state
+    cooling_state = random.randint(0, 3)
+    result = client.publish(f"{publish_topic_prefix}-cooling_device0/gauge", f"{epoch}:{cooling_state}")
+    if result[0] == 0:
+        print(f"Sent `{epoch}:{cooling_state}` to topic `{publish_topic_prefix}-cooling_device0/load`")
+    else:
+        print(f"Failed to send `{epoch}:{cooling_state}` to topic `{publish_topic_prefix}-cooling_device0/gauge`")
+    
+    scheduler.enter(MESSAGES_DELAY, 1, publish_thermal, (client, topic, scheduler))
+
 def run():
     client = connect_mqtt()
     client.loop_start()
@@ -298,6 +338,10 @@ def run():
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_ipstatistics, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["processor"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_processor, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["systemload"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_systemload, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        if MESSAGES_GROUPS["thermal"]:
+            my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_thermal, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
             
 
 

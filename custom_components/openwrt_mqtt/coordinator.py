@@ -44,20 +44,16 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
 
 
     def _determine_entity_device_group(self, entity_name):
-        if entity_name in [
-            "conntrack",
-            "contextswitch",
-            "dhcpleases",
-            "ipstatistics-all",
-            "memory"
-        ]:
-            return entity_name
-        elif re.match("cpu-[\\d]+", entity_name):
+        if re.match("cpu-[\\d]+", entity_name):
             return "processor"
         elif re.match("interface-.+", entity_name):
             return "interface"
-        
-        return None
+        elif re.match("thermal-thermal_.*", entity_name):
+            return "thermal-thermal"
+        elif re.match("thermal-cooling_.*", entity_name):
+            return "thermal-cooling"
+        else:
+            return entity_name
 
     async def _received_message(self, msg):
         """
