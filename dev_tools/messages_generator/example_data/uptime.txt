@@ -1,3 +1,0 @@
-Mensaje 0 recibido en openwrt/AP3000-Caldera/uptime/uptime a las 23:50:
-1728424248.917:1349047
-QoS: 0 - Retain: false

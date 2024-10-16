@@ -1,9 +1,8 @@
 import logging
 import re
 
-from homeassistant.helpers.entity import Entity, EntityCategory
-from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
-from homeassistant.const import UnitOfDataRate
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 
 from .constants import DOMAIN
 
@@ -20,8 +19,11 @@ def get_devices(id, devices):
             elif device_type == "interface":
                 interface = re.match("interface-(.+)", sensor_data["extracted_data"][0])
                 name = name.format(interface.groups()[0])
-            elif device_type == "thermal-thermal" or device_type == "thermal-cooling":
-                device = re.match("thermal-(thermal|cooling)_(.+)", sensor_data["extracted_data"][0])
+            elif device_type in ["thermal-thermal", "thermal-cooling"]:
+                device = re.match(
+                    "thermal-(thermal|cooling)_(.+)",
+                    sensor_data["extracted_data"][0]
+                )
                 name = name.format(device.groups()[1].capitalize())
             elif device_type == "wireless":
                 interface = re.match("iwinfo-(.+)", sensor_data["extracted_data"][0])
@@ -32,7 +34,7 @@ def get_devices(id, devices):
                 "type": sensor_data["sensor_config"]["sensor_type"],
                 "data": sensor_data
             }
-    
+
     return out_devices
 
 
@@ -47,7 +49,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         _LOGGER.debug("Updating entities")
 
         devices = get_devices(entry.data['id'], hass.data[DOMAIN][entry.entry_id]["devices"])
-        
+
         # Iterate over the devices and sensor in the coordinator
         for device_id, device_data in devices.items():
             # Verificar si la entidad ya existe
@@ -78,26 +80,28 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     # Dynamically update when the coordinator is updated
     coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
-    
+
 class BaseEntity(SensorEntity):
     def __init__(self, coordinador, entry, sensor_data):
         self.coordinador = coordinador
         self.entry = entry
         self.sensor_data = sensor_data
-        
+
+        sc = sensor_data["data"]["sensor_config"]
+
         # Sensor attributes
         self._attr_name = sensor_data["name"]
         self._attr_icon = sensor_data["data"]["icon"]
         self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
-        self._attr_suggested_display_precision = sensor_data["data"]["sensor_config"].get("precision", None)
-        self._attr_entity_registry_enabled_default = sensor_data["data"]["sensor_config"].get("enabled_default", None)
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sensor_data["data"]["sensor_config"].get("diagnostic", False) else None
-        
-        self._attr_native_unit_of_measurement = sensor_data["data"]["sensor_config"].get("native_unit_of_measurement", None)
-        self._attr_suggested_unit_of_measurement = sensor_data["data"]["sensor_config"].get("suggested_unit_of_measurement", None)
+        self._attr_suggested_display_precision = sc.get("precision", None)
+        self._attr_entity_registry_enabled_default = sc.get("enabled_default", None)
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sc.get("diagnostic", False) else None
+
+        self._attr_native_unit_of_measurement = sc.get("native_unit_of_measurement", None)
+        self._attr_suggested_unit_of_measurement = sc.get("suggested_unit_of_measurement", None)
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_class = sensor_data["data"]["sensor_config"].get("device_class", None)
-        
+        self._attr_device_class = sc.get("device_class", None)
+
     def _value_conversion(self, value):
         """Function to process the original value. The default will be just return the value, 
         so must be overriden in the derived classes.
@@ -106,16 +110,19 @@ class BaseEntity(SensorEntity):
             value: The original value of the sensor
 
         Returns:
-            The converted value of the sensor. Can be a type change (str -> float for example), conversion (bytes -> bits)...
+            The converted value of the sensor.
+            Can be a type change (str -> float for example), conversion (bytes -> bits)...
         """
         return value
-        
+
     @property
     def native_value(self):
         # Get the current state from the coordinator
         sensor_id = self.sensor_data["data"]["sensor_id"]
         _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
-        value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][self.sensor_data["data"]["device_group"]][sensor_id]["value"]
+        value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][
+            self.sensor_data["data"]["device_group"]
+        ][sensor_id]["value"]
         # Convert the value using the internal function and return it
         return self._value_conversion(value)
 
@@ -135,9 +142,6 @@ class BaseEntity(SensorEntity):
 
 
 class FloatEntity(BaseEntity):
-    def __init__(self, coordinador, entry, sensor_data):
-        super().__init__(coordinador, entry, sensor_data)
-
     def _value_conversion(self, value):
         # Convert the value from str to float and then from octets to bits.
         # Bits should not have decimals, so will be converted to int.
@@ -146,15 +150,12 @@ class FloatEntity(BaseEntity):
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
-        
+
         _LOGGER.debug("Value: %f", value)
         return value
 
 
 class NumericEntity(BaseEntity):
-    def __init__(self, coordinador, entry, sensor_data):
-        super().__init__(coordinador, entry, sensor_data)
-
     def _value_conversion(self, value):
         # Convert the value from str to float and then from octets to bits.
         # Bits should not have decimals, so will be converted to int.
@@ -163,15 +164,12 @@ class NumericEntity(BaseEntity):
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
-        
+
         _LOGGER.debug("Value: %d", value)
         return value
 
 
 class OctectsEntity(BaseEntity):
-    def __init__(self, coordinador, entry, sensor_data):
-        super().__init__(coordinador, entry, sensor_data)
-
     def _value_conversion(self, value):
         # Convert the value from str to float and then from octets to bits.
         # Bits should not have decimals, so will be converted to int.
@@ -180,6 +178,6 @@ class OctectsEntity(BaseEntity):
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
-        
+
         _LOGGER.debug("Value: %d", value)
         return value

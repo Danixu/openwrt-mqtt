@@ -1,7 +1,6 @@
-from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
     PERCENTAGE,
-    SIGNAL_STRENGTH_DECIBELS,
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     UnitOfDataRate,
     UnitOfInformation,
@@ -9,7 +8,6 @@ from homeassistant.const import (
     UnitOfTime
 )
 
-"""Global module data"""
 DOMAIN = 'openwrt_mqtt'
 ICONS = {
     "processor": "mdi:chip",

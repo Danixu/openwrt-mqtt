@@ -11,6 +11,9 @@ from .constants import DOMAIN, ALLOWED_SENSORS
 _LOGGER = logging.getLogger(__name__)
 
 class OpenWRTMqttCoordinator(DataUpdateCoordinator):
+    """
+    Integration corrdinator which will centralice all the sensors updates.
+    """
     def __init__(self, hass: HomeAssistant, entry):
         super().__init__(
             hass,
@@ -25,7 +28,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
         _LOGGER.setLevel(logging.DEBUG)
 
         # Subscribe to the topic
-        _LOGGER.debug(f"Suscribing to the topic {entry.data["mqtt_topic"]}/#")
+        _LOGGER.debug("Suscribing to the topic %s/#", entry.data["mqtt_topic"])
         hass.async_create_task(self.async_subscribe_to_topic(f"{entry.data["mqtt_topic"]}/#"))
 
     async def async_subscribe_to_topic(self, topic):
@@ -62,7 +65,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
         Function called when MQTT message arrives.
         This function updates the devices and sensors in the coordinator if requried.
         """
-        _LOGGER.info(f"Received message in {msg.topic}: {msg.payload}")
+        _LOGGER.info("Received message in %s: %s", msg.topic, msg.payload)
         # Extract the device type and the entity from the topic
         entity_found = re.match(".*\\/(.+)\\/(.+)$", msg.topic)
 
@@ -70,39 +73,55 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("Unable to extract the data from the topic.")
         else:
             _LOGGER.debug(
-                f"Detected a device {entity_found.groups()[0]} with an entity {entity_found.groups()[1]}"
+                "Detected a device %s with an entity %s",
+                entity_found.groups()[0],
+                entity_found.groups()[1]
             )
 
             # Get the device group to avoid to create a device by every cpu for example
             device_group = self._determine_entity_device_group(entity_found.groups()[0])
-            if device_group == None:
-                _LOGGER.debug("The device group for the device %s cannot be determined." % entity_found.groups()[0])
+            if device_group is None:
+                _LOGGER.debug(
+                    "The device group for the device %s cannot be determined.",
+                    entity_found.groups()[0]
+                )
                 return
-            
-            if not ALLOWED_SENSORS.get(device_group, {}).get(entity_found.groups()[1], None):
-                _LOGGER.debug(f"The sensor {device_group} of the device group {entity_found.groups()[1]} is not allowed.")
+
+            sensor_config = ALLOWED_SENSORS.get(
+                device_group, {}).get(entity_found.groups()[1], None)
+            if not sensor_config:
+                _LOGGER.debug(
+                    "The sensor %s of the device group %s is not allowed.",
+                    device_group,
+                    entity_found.groups()[1]
+                )
                 return
-            
+
             # Check if the group already exists and if not, create it
             if device_group not in self.hass.data[DOMAIN][self.entry.entry_id]["devices"]:
                 self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group]= {}
 
             # Now just update the entity data:
             splitted_values = msg.payload.split(":")
-            if len(ALLOWED_SENSORS[device_group][entity_found.groups()[1]]["partitions"]) != (len(splitted_values) - 1):
-                _LOGGER.warning(f"The sensor {device_group} of the device group {entity_found.groups()[1]} partitions doesn't matches the template. Sensor will not be changed.")
+            if len(sensor_config["partitions"]) != (len(splitted_values) - 1):
+                _LOGGER.warning(
+                    "The sensor %s of the device group %s partitions doesn't matches the template. "
+                    "Sensor will not be changed.",
+                    device_group,
+                    entity_found.groups()[1]  
+                )
                 return
-            
-            for idx, partition in enumerate(ALLOWED_SENSORS[device_group][entity_found.groups()[1]]["partitions"]):
+
+            for idx, partition in enumerate(sensor_config["partitions"]):
                 sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
                 self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group][sensor_id] = {
-                    "sensor_config": ALLOWED_SENSORS[device_group][entity_found.groups()[1]],
+                    "sensor_config": sensor_config,
                     "extracted_data": entity_found.groups(),
                     "sensor_id": sensor_id,
                     "device_group": device_group,
                     "icon": partition.get(
                         "icon",
-                        ALLOWED_SENSORS[device_group][entity_found.groups()[1]].get("icon", "mdi:cancel")
+                        sensor_config.get("icon", "mdi:cancel")
                     ),
                     "timestamp": splitted_values[0],
                     "name": partition["name"],

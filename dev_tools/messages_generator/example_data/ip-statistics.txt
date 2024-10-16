@@ -1,5 +1,0 @@
-Mensaje 4 recibido en openwrt/AP3000-Caldera/ipstatistics-all/ip_stats_octets a las 8:36:
-1728455791.216:897.433321019215:6623.79990911162:28.4999996089377:15.466666454441
-QoS: 0 - Retain: false
-Mensaje 3 recibido en openwrt/AP3000-Caldera/ipstatistics-all/ip_stats_octets a las 8:36:
-1728455761.216:132.666664162609:69.2333320265678:42.6333325286375:0
