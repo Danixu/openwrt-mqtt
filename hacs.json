@@ -1,0 +1,10 @@
+{
+    "name": "OpenWRT MQTT",
+    "content_in_root": false,
+    "domains": [
+        "openwrt_mqtt"
+    ],
+    "zip_release": false,
+    "homeassistant": "2024.10.1",
+    "iot_class": "local_polling"
+}
