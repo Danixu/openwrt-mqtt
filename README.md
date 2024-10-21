@@ -45,4 +45,8 @@ The MQTT AddOn will be used as client, so must be installed into HASS prior to i
 
 ### Install the integration
 
-WiP
+* Navigate to Hacs in Home assistant
+* Press the three dots in the top right corner to open the options menu
+* Select the `Custom repositories` option
+* On the new window, paste the url of this repository on the `Repository` option (`https://github.com/Danixu/openwrt-mqtt`), and select the `Integration` type.
+* Search for `OpenWRT MQTT` in the search box and you will see the integration.

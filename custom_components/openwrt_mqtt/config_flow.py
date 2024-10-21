@@ -64,8 +64,8 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
     async def async_step_user(self, user_input=None):
-        _LOGGER.trace("Input: %r", user_input)
-        _LOGGER.trace("Discovery: %r", self.discovery_info)
+        _LOGGER.debug("Input: %r", user_input)
+        _LOGGER.debug("Discovery: %r", self.discovery_info)
         if user_input is None:
             return self.async_show_form(
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA
