@@ -8,7 +8,7 @@ from .constants import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-def get_devices(id, devices):
+def get_devices(entry_id, devices):
     out_devices = {}
     for device_type, sensors in devices.items():
         for sensor_name, sensor_data in sensors.items():
@@ -29,7 +29,7 @@ def get_devices(id, devices):
                 interface = re.match("iwinfo-(.+)", sensor_data["extracted_data"][0])
                 name = name.format(interface.groups()[0])
 
-            out_devices[f"{id}_{device_type}_{sensor_name}"] = {
+            out_devices[f"{entry_id}_{device_type}_{sensor_name}"] = {
                 "name": name,
                 "type": sensor_data["sensor_config"]["sensor_type"],
                 "data": sensor_data
@@ -137,7 +137,7 @@ class BaseEntity(SensorEntity):
             "name": f"OpenWRT Device: {self.entry.data['id']}",
             "manufacturer": "OpenWRT",
         }
-        _LOGGER.debug(f"Device Info: {device_info}")
+        _LOGGER.debug("Device Info: %s", device_info)
         return device_info
 
 

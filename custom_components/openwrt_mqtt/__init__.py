@@ -12,7 +12,7 @@ from .coordinator import OpenWRTMqttCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    _LOGGER.debug(f"Loading the openwrt mqtt component!: {entry.source}")
+    _LOGGER.debug("Loading the openwrt mqtt component!: %s", entry.source)
     hass.data.setdefault(DOMAIN, {})
 
     _LOGGER.setLevel(logging.DEBUG)
@@ -47,10 +47,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Handle unloading of a config entry."""
-    _LOGGER.debug(f"Unloading the openwrt mqtt component!. State: {config_entry}")
+    _LOGGER.debug("Unloading the openwrt mqtt component!. State: %s", config_entry)
     # Unsubscribe all the entities registered under the platform
     unload_ok = await hass.config_entries.async_unload_platforms(config_entry, ["sensor"])
-    
+
     # If everything was ok
     if unload_ok:
         _LOGGER.debug("Getting the coordinator.")
@@ -60,7 +60,8 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         # and if exists unsubscribe from the topic
         if coordinator:
             _LOGGER.debug("The coordinator exists. Unsuscribing from the MQTT.")
-            await coordinator.async_unsubscribe_from_topic()  # Desuscribirse de MQTT (si es necesario)
+            # Unsubscribe from MQTT (if required)
+            await coordinator.async_unsubscribe_from_topic()
 
         # Clear the entities data
         _LOGGER.debug("Clearing the entities entries.")
@@ -70,11 +71,11 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 async def async_remove_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Manejar la eliminación de una config entry."""
-    _LOGGER.debug(f"Removing config entry with id {config_entry.entry_id}")
+    _LOGGER.debug("Removing config entry with id %s", config_entry.entry_id)
 
     # Verifica si el config_entry_id es el que corresponde a tu integración
     if config_entry.entry_id in hass.data[DOMAIN]:
-        _LOGGER.debug(f"Removing integration data for entry {config_entry.entry_id}")
+        _LOGGER.debug("Removing integration data for entry %s", config_entry.entry_id)
         hass.data[DOMAIN].pop(config_entry.entry_id, None)
 
     # Aquí puedes eliminar cualquier otro estado persistente o archivos relacionados.

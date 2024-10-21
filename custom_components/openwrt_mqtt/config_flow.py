@@ -1,10 +1,10 @@
-from homeassistant import config_entries
-import homeassistant.helpers.config_validation as cv
-from .constants import DOMAIN
-
 import logging
 import re
 import voluptuous as vol
+
+from homeassistant import config_entries
+import homeassistant.helpers.config_validation as cv
+from .constants import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,7 +16,6 @@ STEP_USER_DATA_SCHEMA = vol.Schema({
 _LOGGER.setLevel(logging.DEBUG)
 
 class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-
     VERSION = 2
     MINOR_VERSION = 1
 
@@ -33,17 +32,20 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if not topic_data:
             _LOGGER.warning("Cannot extract the device info from the autodiscovery data")
-            return self.async_abort(reason="Cannot extract the device info from autodiscovery the data")
-        
-        _LOGGER.debug(f"Extracted Data: {topic_data.groups()}")
-        
+            return self.async_abort(
+                reason="Cannot extract the device info from autodiscovery the data")
+
+        _LOGGER.debug("Extracted Data: %r", topic_data.groups())
+
         # Verifica si ya existe una entrada con este ID
         for entry in self.hass.config_entries.async_entries('openwrt_mqtt'):
             if entry.data['id'] == topic_data.groups()[1]:
                 _LOGGER.debug("The device was already configured")
                 return self.async_abort(reason="Device already configured")
-        
-        _LOGGER.debug(f"Detected a device with the ID {topic_data.groups()[1]} and the topic {topic_data.groups()[0]}.")
+
+        _LOGGER.debug(
+            "Detected a device with the ID %s and the topic %s.",
+            topic_data.groups()[1], topic_data.groups()[0])
 
         self.context.update(
             {"title_placeholders": {"name": f"{topic_data.groups()[1]}"}}
@@ -62,8 +64,8 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
     async def async_step_user(self, user_input=None):
-        _LOGGER.debug(f"Input: {user_input}")
-        _LOGGER.debug(f"Discovery: {self.discovery_info}")
+        _LOGGER.trace("Input: %r", user_input)
+        _LOGGER.trace("Discovery: %r", self.discovery_info)
         if user_input is None:
             return self.async_show_form(
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA
@@ -74,5 +76,5 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         for entry in self.hass.config_entries.async_entries('openwrt_mqtt'):
             if entry.data['id'] == user_input['id']:
                 return self.async_abort(reason=f"The device ID {user_input['id']} already exists.")
-            
+
         return self.async_create_entry(title=title, data=user_input)

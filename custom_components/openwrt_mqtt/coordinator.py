@@ -108,7 +108,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                     "The sensor %s of the device group %s partitions doesn't matches the template. "
                     "Sensor will not be changed.",
                     device_group,
-                    entity_found.groups()[1]  
+                    entity_found.groups()[1]
                 )
                 return
 
