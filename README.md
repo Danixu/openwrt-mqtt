@@ -50,3 +50,19 @@ The MQTT AddOn will be used as client, so must be installed into HASS prior to i
 * Select the `Custom repositories` option
 * On the new window, paste the url of this repository on the `Repository` option (`https://github.com/Danixu/openwrt-mqtt`), and select the `Integration` type.
 * Search for `OpenWRT MQTT` in the search box and you will see the integration.
+
+### Install the OpenWRT packages
+
+In order to receive the data on the MQTT broker, we need some CollectD packages to collect it from the device. To install it we will have to follow this steps:
+
+* Navigate to the `xxxxxx` menu and select the `xxxxx` option.
+* Press the `Update packages` button to get an updated list of packages
+* Search for `collectd` using the search box and you will see the available packages
+* Install the packages:
+  * collectd (Main application)
+  * collectd-mod-mqtt (Send the data to the broker)
+  * xxxx (Allows to manage the configuration in the LuCi interface)
+* Alternatively, you can connect via ssh and use this command:
+  `pkg install `
+* Once the packages are installed, we will have to navigate to the `xxxxxx` menu and select the `xxxxx` option.
+* There we will go to the tab `yyyyyy` and we will press the `configure` button next to the mqtt exporter.

@@ -5,3 +5,4 @@ mosquitto/log/*
 !mosquitto/config/mosquitto.conf
 !mosquitto/data/.gitkeep
 !mosquitto/log/.gitkeep
+.vscode/
