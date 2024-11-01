@@ -55,14 +55,85 @@ The MQTT AddOn will be used as client, so must be installed into HASS prior to i
 
 In order to receive the data on the MQTT broker, we need some CollectD packages to collect it from the device. To install it we will have to follow this steps:
 
-* Navigate to the `xxxxxx` menu and select the `xxxxx` option.
+* Navigate to the `System` menu and select the `Software` option.
 * Press the `Update packages` button to get an updated list of packages
 * Search for `collectd` using the search box and you will see the available packages
 * Install the packages:
   * collectd (Main application)
   * collectd-mod-mqtt (Send the data to the broker)
-  * xxxx (Allows to manage the configuration in the LuCi interface)
+  * luci-app-statistics (Allows to manage the configuration in the LuCi interface)
 * Alternatively, you can connect via ssh and use this command:
-  `pkg install `
-* Once the packages are installed, we will have to navigate to the `xxxxxx` menu and select the `xxxxx` option.
-* There we will go to the tab `yyyyyy` and we will press the `configure` button next to the mqtt exporter.
+  `opkg install collectd collectd-mod-mqtt luci-app-statistics`
+  This will install other packages like for example the `collectd-mod-cpu` or `collectd-mod-iwinfo`.
+
+The available packages compatible with this integrations are:
+* **collectd-mod-conntrack**: in-kernel connection tracking state table.
+* **collectd-mod-contextswitch**: CPU context switches
+* **collectd-mod-cpu**: Device CPU usage
+* **collectd-mod-dhcpleases**: DHCP Leases info
+* **collectd-mod-interface**: Interface information like Bandwidth and Packets
+* **collectd-mod-ipstatistics**: Received, sent, dropped and errors in Packets
+* **collectd-mod-iwinfo**: Wireless information
+* **collectd-mod-load**: Device Load
+* **collectd-mod-memory**: Device memory usage 
+* **collectd-mod-thermal**: Device temperatures
+* **collectd-mod-uptime**: Device Uptime
+
+To install all the packages you can use this command:
+
+```
+opkg install collectd collectd-mod-mqtt luci-app-statistics collectd-mod-conntrack collectd-mod-contextswitch collectd-mod-cpu collectd-mod-dhcpleases collectd-mod-interface collectd-mod-ipstatistics collectd-mod-iwinfo collectd-mod-load collectd-mod-memory collectd-mod-thermal collectd-mod-uptime
+```
+
+## Configuration
+
+### Configure the Collectd Exporter
+
+The first we will need is to configure the Collectd exporter to send the metrics to the MQTT broker. To do it we will follow this steps:
+
+* On the OpenWRT device we will have to navigate to the `Stadistics` menu and select the `Setup` option. If the menu doesn't exists then a logout/login can be necessary.
+* There we will go to the tab `Output plugins` and we will activate the checkboxt next to it.
+* A new Window will be open where we will be able to configure the server and the credentials. Just we will press `Add` and we will fill the fields.
+* An important field is the Prefix field, which we will use to configure the integration.
+* On the `Collectd Settings` tab, we can configure the `Hostname`, which will be used to configure the integration too. It's important to set an unique hostname or the data will be mixed.
+
+In some versions of OpenWRT the MQTT plugin doesn't appear in Luci after installing it. In this case, the configuration must be done manually.
+
+* Connect to the device via SSH
+* Edit the file `/etc/collectd.conf`
+* In this file we will add the following lines:
+
+```
+LoadPlugin mqtt              
+<Plugin mqtt>          
+        <Publish "Home Assistant">
+                Host "<Host>"
+                Port 1883
+                User "<user>"    
+                Password "<password>"
+                Qos 0    
+                Prefix openwrt    
+                Retain true                          
+                Retain false
+        </Publish>                
+</Plugin> 
+```
+
+Changing the `Host`, `Port`, `User` and `Password` fields with the correct data of our MQTT server.
+
+
+
+We will have to configure which modules data we want to export to our integration on the `General` and `Network` plugins tabs. Here we can select with the checkbox the plugins to use.
+
+### Configure the integration
+
+Once we have the exported configured, it's time to capture the data into the Home Assistant integration. To do it we will do the following steps:
+
+* Navigate to the `Settings` menu -> `Devices & Services` -> `Integrations`
+* Here we will have to press the `Add Integration` button and search for the `OpenWRT MQTT` Integration
+* On the new window that will be opened, we will configure the settings according to the previous exporter configuration.
+  * `Device Name`: The name that we want to set to our device. Must be unique.
+  * `MQTT Topic prefix`: The Prefix configured in the Collectd exporter followed by the device hostname: `<prefix>/<hostname>`. For example `collectd/MyDevice`.
+* We will press `Submit` to save the settings and the new device will be added
+
+The entities will be added automatically once that data is received. Depending of the configured data sent inteval
