@@ -1,5 +1,5 @@
 {
-    "title": "OpenWrt MQTT: Pepe",
+    "title": "OpenWrt MQTT:",
     "config": {
         "flow_title": "Discovered Device ({name})",
         "step": {

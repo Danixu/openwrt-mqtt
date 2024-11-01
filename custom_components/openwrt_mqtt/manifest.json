@@ -1,7 +1,7 @@
 {
     "domain": "openwrt_mqtt",
     "name": "OpenWRT MQTT",
-    "version": "0.0.1",
+    "version": "0.5.0",
     "documentation": "https://github.com/Danixu/openwrt-mqtt",
     "dependencies": [
         "mqtt"
