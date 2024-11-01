@@ -487,9 +487,9 @@ ALLOWED_SENSORS = {
             ]
         },
         "signal_quality": {
-            "sensor_type": "numeric",
-            "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-            "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
+            "sensor_type": "float",
+            #"native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            #"device_class": SensorDeviceClass.SIGNAL_STRENGTH,
             "icon": "mdi:router-wireless",
             "enabled_default": True,
             "partitions": [
