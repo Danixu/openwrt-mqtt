@@ -121,9 +121,7 @@ LoadPlugin mqtt
 
 Changing the `Host`, `Port`, `User` and `Password` fields with the correct data of our MQTT server.
 
-
-
-We will have to configure which modules data we want to export to our integration on the `General` and `Network` plugins tabs. Here we can select with the checkbox the plugins to use.
+We will have to configure which modules data we want to export to our integration on the `General` and `Network` plugins tabs. Here we can select with the checkbox the plugins to use. Also the CPU and Memory plugins will require to enable the Percentage values to be visible (the integration uses that values).
 
 ### Configure the integration
 
