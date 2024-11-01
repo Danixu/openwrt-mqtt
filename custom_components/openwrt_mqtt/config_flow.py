@@ -13,8 +13,6 @@ STEP_USER_DATA_SCHEMA = vol.Schema({
     vol.Required('mqtt_topic'): cv.string,
 })
 
-_LOGGER.setLevel(logging.DEBUG)
-
 class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 2
     MINOR_VERSION = 1

@@ -15,9 +15,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Loading the openwrt mqtt component!: %s", entry.source)
     hass.data.setdefault(DOMAIN, {})
 
-    _LOGGER.setLevel(logging.DEBUG)
-    _LOGGER.debug(entry.data)
-
     _LOGGER.debug("Creating the coordinator...")
     # Create the Data Coordinator
     coordinator = OpenWRTMqttCoordinator(hass, entry)

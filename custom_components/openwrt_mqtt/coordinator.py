@@ -25,8 +25,6 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
         self.hass = hass
         self._unsubscribe = None
 
-        _LOGGER.setLevel(logging.DEBUG)
-
         # Subscribe to the topic
         _LOGGER.debug("Suscribing to the topic %s/#", entry.data["mqtt_topic"])
         hass.async_create_task(self.async_subscribe_to_topic(f"{entry.data["mqtt_topic"]}/#"))

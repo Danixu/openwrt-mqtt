@@ -41,8 +41,6 @@ def get_devices(entry_id, devices):
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
-    _LOGGER.setLevel(logging.DEBUG)
-
     # Function to dynamically update the entities.
     async def entities_update():
         new_entities = []
