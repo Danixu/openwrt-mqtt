@@ -95,7 +95,7 @@ def publish_conntrack(client, topic, scheduler):
     current_conntracks = random.randint(0, OPENWRT_CONFS["max_conntrack"]+1)
 
     # Sent the three messages
-    result = client.publish(f"{publish_topic_prefix}/conntrack", f"{epoch}:{current_conntracks}")
+    result = client.publish(f"{publish_topic_prefix}/conntrack", f"{epoch}:{current_conntracks}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{current_conntracks}` to topic `{publish_topic_prefix}/conntrack`")
     else:
@@ -103,7 +103,7 @@ def publish_conntrack(client, topic, scheduler):
 
     result = client.publish(
         f"{publish_topic_prefix}/conntrack-max",
-        f"{epoch}:{OPENWRT_CONFS["max_conntrack"]}"
+        f"{epoch}:{OPENWRT_CONFS["max_conntrack"]}\x00"
     )
     if result[0] == 0:
         print(f"Sent `{epoch}:{OPENWRT_CONFS["max_conntrack"]}` to topic `{publish_topic_prefix}/conntrack-max`")
@@ -111,7 +111,7 @@ def publish_conntrack(client, topic, scheduler):
         print(f"Failed to send `{epoch}:{OPENWRT_CONFS["max_conntrack"]}` to topic `{publish_topic_prefix}/conntrack-max`")
 
     percent = round(current_conntracks / OPENWRT_CONFS["max_conntrack"] * 100, 16)
-    result = client.publish(f"{publish_topic_prefix}/percent-used", f"{epoch}:{percent}")
+    result = client.publish(f"{publish_topic_prefix}/percent-used", f"{epoch}:{percent}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{percent}` to topic `{publish_topic_prefix}/percent-used`")
     else:
@@ -126,7 +126,7 @@ def publish_contextswitch(client, topic, scheduler):
     current_contextswitch = random.uniform(0.0, 10000.0)
 
     # Sent the three messages
-    result = client.publish(f"{publish_topic_prefix}/contextswitch", f"{epoch}:{current_contextswitch}")
+    result = client.publish(f"{publish_topic_prefix}/contextswitch", f"{epoch}:{current_contextswitch}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{current_contextswitch}` to topic `{publish_topic_prefix}/contextswitch`")
     else:
@@ -141,7 +141,7 @@ def publish_dhcpleases(client, topic, scheduler):
     current_dhcpleases = random.randint(0, 500)
 
     # Sent the message
-    result = client.publish(f"{publish_topic_prefix}/count", f"{epoch}:{current_dhcpleases}")
+    result = client.publish(f"{publish_topic_prefix}/count", f"{epoch}:{current_dhcpleases}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{current_dhcpleases}` to topic `{publish_topic_prefix}/count`")
     else:
@@ -157,7 +157,7 @@ def publish_interfaces(client, topic, scheduler):
     # Sent the four messages
     first_value = random.randint(0, 500)
     second_value = random.randint(0, 500)
-    result = client.publish(f"{publish_topic_prefix}/if_dropped", f"{epoch}:{first_value}:{second_value}")
+    result = client.publish(f"{publish_topic_prefix}/if_dropped", f"{epoch}:{first_value}:{second_value}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_dropped`")
     else:
@@ -166,7 +166,7 @@ def publish_interfaces(client, topic, scheduler):
     # Sent the four messages
     first_value = random.randint(0, 500)
     second_value = random.randint(0, 500)
-    result = client.publish(f"{publish_topic_prefix}/if_errors", f"{epoch}:{first_value}:{second_value}")
+    result = client.publish(f"{publish_topic_prefix}/if_errors", f"{epoch}:{first_value}:{second_value}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_errors`")
     else:
@@ -175,7 +175,7 @@ def publish_interfaces(client, topic, scheduler):
     # Sent the four messages
     first_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
     second_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
-    result = client.publish(f"{publish_topic_prefix}/if_octets", f"{epoch}:{first_value}:{second_value}")
+    result = client.publish(f"{publish_topic_prefix}/if_octets", f"{epoch}:{first_value}:{second_value}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_octets`")
     else:
@@ -184,7 +184,7 @@ def publish_interfaces(client, topic, scheduler):
     # Sent the four messages
     first_value = random.uniform(0.0, 500.0)
     second_value = random.uniform(0.0, 500.0)
-    result = client.publish(f"{publish_topic_prefix}/if_packets", f"{epoch}:{first_value}:{second_value}")
+    result = client.publish(f"{publish_topic_prefix}/if_packets", f"{epoch}:{first_value}:{second_value}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}` to topic `{publish_topic_prefix}/if_packets`")
     else:
@@ -202,7 +202,7 @@ def publish_ipstatistics(client, topic, scheduler):
     second_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
     third_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
     fourth_value = random.randint(0, OPENWRT_CONFS["max_bandwidth"])
-    result = client.publish(f"{publish_topic_prefix}/ip_stats_octets", f"{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}")
+    result = client.publish(f"{publish_topic_prefix}/ip_stats_octets", f"{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}` to topic `{publish_topic_prefix}/ip_stats_octets`")
     else:
@@ -240,7 +240,7 @@ def publish_memory(client, topic, scheduler):
         current = random.randint(0, 134217728)
     
         # Sent the three messages
-        result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}")
+        result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{current}` to topic `{publish_topic_prefix}/{item}`")
         else:
@@ -250,7 +250,7 @@ def publish_memory(client, topic, scheduler):
         current = random.uniform(0.0, 100.0)
     
         # Sent the three messages
-        result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}")
+        result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{current}` to topic `{publish_topic_prefix}/{item}`")
         else:
@@ -279,7 +279,7 @@ def publish_processor(client, topic, scheduler):
             percent = random.uniform(0.0, 100.0)
             publish_topic = publish_topic_prefix + value
 
-            result = client.publish(publish_topic, f"{epoch}:{percent}")
+            result = client.publish(publish_topic, f"{epoch}:{percent}\x00")
             if result[0] == 0:
                 print(f"Sent `{epoch}:{percent}` to topic `{publish_topic}`")
             else:
@@ -297,7 +297,7 @@ def publish_systemload(client, topic, scheduler):
     first_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
     second_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
     third_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
-    result = client.publish(f"{publish_topic_prefix}/load", f"{epoch}:{first_value}:{second_value}:{third_value}")
+    result = client.publish(f"{publish_topic_prefix}/load", f"{epoch}:{first_value}:{second_value}:{third_value}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}` to topic `{publish_topic_prefix}/load`")
     else:
@@ -312,7 +312,7 @@ def publish_thermal(client, topic, scheduler):
     
     # Send the temperature measurement
     temperature = random.uniform(0, 90)
-    result = client.publish(f"{publish_topic_prefix}-thermal_zone0/temperature", f"{epoch}:{temperature}")
+    result = client.publish(f"{publish_topic_prefix}-thermal_zone0/temperature", f"{epoch}:{temperature}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{temperature}` to topic `{publish_topic_prefix}-thermal_zone0/temperature`")
     else:
@@ -320,7 +320,7 @@ def publish_thermal(client, topic, scheduler):
     
     # Send the cooling device state
     cooling_state = random.randint(0, 3)
-    result = client.publish(f"{publish_topic_prefix}-cooling_device0/gauge", f"{epoch}:{cooling_state}")
+    result = client.publish(f"{publish_topic_prefix}-cooling_device0/gauge", f"{epoch}:{cooling_state}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{cooling_state}` to topic `{publish_topic_prefix}-cooling_device0/load`")
     else:
@@ -335,7 +335,7 @@ def publish_uptime(client, topic, scheduler):
     
     # Send the temperature measurement
     elapsed = datetime.datetime.now() - start_time
-    result = client.publish(f"{publish_topic_prefix}/uptime", f"{epoch}:{elapsed.seconds}")
+    result = client.publish(f"{publish_topic_prefix}/uptime", f"{epoch}:{elapsed.seconds}\x00")
     if result[0] == 0:
         print(f"Sent `{epoch}:{elapsed.seconds}` to topic `{publish_topic_prefix}/uptime`")
     else:
@@ -353,7 +353,7 @@ def publish_wireless(client, topic, scheduler):
         # Send the stations
         stations = random.randint(0, 100)
         final_topic = f"{publish_topic_prefix}-{wl_device}/stations"
-        result = client.publish(final_topic, f"{epoch}:{stations}")
+        result = client.publish(final_topic, f"{epoch}:{stations}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{stations}` to topic `{final_topic}`")
         else:
@@ -362,7 +362,7 @@ def publish_wireless(client, topic, scheduler):
         # Send the Signal Quality
         signal_quality = -(random.randint(30, 100))
         final_topic = f"{publish_topic_prefix}-{wl_device}/signal_quality"
-        result = client.publish(final_topic, f"{epoch}:{signal_quality}")
+        result = client.publish(final_topic, f"{epoch}:{signal_quality}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{signal_quality}` to topic `{final_topic}`")
         else:
@@ -371,7 +371,7 @@ def publish_wireless(client, topic, scheduler):
         # Send the Signal Noise
         signal_noise = -(random.randint(30, 100))
         final_topic = f"{publish_topic_prefix}-{wl_device}/signal_noise"
-        result = client.publish(final_topic, f"{epoch}:{signal_noise}")
+        result = client.publish(final_topic, f"{epoch}:{signal_noise}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{signal_noise}` to topic `{final_topic}`")
         else:
@@ -380,7 +380,7 @@ def publish_wireless(client, topic, scheduler):
         # Send the Signal Power
         signal_power = -(random.randint(30, 100))
         final_topic = f"{publish_topic_prefix}-{wl_device}/signal_power"
-        result = client.publish(final_topic, f"{epoch}:{signal_power}")
+        result = client.publish(final_topic, f"{epoch}:{signal_power}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{signal_power}` to topic `{final_topic}`")
         else:
@@ -389,7 +389,7 @@ def publish_wireless(client, topic, scheduler):
         # Send the bitrate
         bitrate = random.randint(52000000, 1000000000)
         final_topic = f"{publish_topic_prefix}-{wl_device}/bitrate"
-        result = client.publish(final_topic, f"{epoch}:{bitrate}")
+        result = client.publish(final_topic, f"{epoch}:{bitrate}\x00")
         if result[0] == 0:
             print(f"Sent `{epoch}:{bitrate}` to topic `{final_topic}`")
         else:

@@ -527,6 +527,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
             "device_class": SensorDeviceClass.DATA_RATE,
+            "precision": 2,
             "icon": "mdi:router-wireless",
             "enabled_default": True,
             "partitions": [

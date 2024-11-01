@@ -102,7 +102,7 @@ class OpenWRTMqttCoordinator(DataUpdateCoordinator):
                 self.hass.data[DOMAIN][self.entry.entry_id]["devices"][device_group]= {}
 
             # Now just update the entity data:
-            splitted_values = msg.payload.split(":")
+            splitted_values = msg.payload.rstrip('\x00').split(":")
             if len(sensor_config["partitions"]) != (len(splitted_values) - 1):
                 _LOGGER.warning(
                     "The sensor %s of the device group %s partitions doesn't matches the template. "
