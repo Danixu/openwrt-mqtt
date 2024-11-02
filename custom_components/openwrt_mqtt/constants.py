@@ -141,10 +141,10 @@ ALLOWED_SENSORS = {
         "ip_stats_octets": {
             "sensor_type": "numeric",
             "enabled_default": True,
-            "precision": 2,
             "native_unit_of_measurement": UnitOfDataRate.BYTES_PER_SECOND,
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
             "device_class": SensorDeviceClass.DATA_RATE,
+            "precision": 2,
             "partitions": [
                 {
                     "name": "IP Statistics: IPv4 (RX)",
@@ -172,6 +172,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfInformation.BYTES,
             "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
             "device_class": SensorDeviceClass.DATA_SIZE,
+            "precision": 2,
             "enabled_default": False,
             "partitions": [
                 {
@@ -185,6 +186,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfInformation.BYTES,
             "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
             "device_class": SensorDeviceClass.DATA_SIZE,
+            "precision": 2,
             "enabled_default": False,
             "partitions": [
                 {
@@ -198,6 +200,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfInformation.BYTES,
             "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
             "device_class": SensorDeviceClass.DATA_SIZE,
+            "precision": 2,
             "enabled_default": False,
             "partitions": [
                 {
@@ -211,6 +214,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfInformation.BYTES,
             "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
             "device_class": SensorDeviceClass.DATA_SIZE,
+            "precision": 2,
             "diagnostic": True,
             "partitions": [
                 {
@@ -224,6 +228,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfInformation.BYTES,
             "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
             "device_class": SensorDeviceClass.DATA_SIZE,
+            "precision": 2,
             "diagnostic": True,
             "partitions": [
                 {
@@ -237,6 +242,7 @@ ALLOWED_SENSORS = {
             "native_unit_of_measurement": UnitOfInformation.BYTES,
             "suggested_unit_of_measurement": UnitOfInformation.MEGABYTES,
             "device_class": SensorDeviceClass.DATA_SIZE,
+            "precision": 2,
             "enabled_default": False,
             "partitions": [
                 {
