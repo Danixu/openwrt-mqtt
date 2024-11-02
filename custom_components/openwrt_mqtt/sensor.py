@@ -94,7 +94,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             for idx, partition in enumerate(sensor_config["partitions"]):
                 sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
                 entity = None
-                if not sensor_id in hass.data[DOMAIN][entry.entry_id]["devices"][device_group]:
+                if sensor_id not in hass.data[DOMAIN][entry.entry_id]["devices"][device_group]:
                     device_name = get_device_name(device_group, partition["name"], entity_found.groups()[0])
                     _LOGGER.debug(
                         "The sensor doesn't exists yet. Adding the entity for %s",

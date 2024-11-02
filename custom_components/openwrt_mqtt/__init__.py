@@ -7,7 +7,6 @@ from homeassistant.components.mqtt import (
 )
 
 from .constants import DOMAIN
-#from .coordinator import OpenWRTMqttCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
