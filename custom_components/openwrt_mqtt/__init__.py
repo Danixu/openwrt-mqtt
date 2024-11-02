@@ -24,8 +24,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data[DOMAIN][entry.entry_id] = {
             #"coordinator": coordinator,
             "unsubscribe": None,
-            "devices": {},
-            "entities": {}
+            "devices": {}
         }
     else:
         _LOGGER.debug("There is integration data. The new coordinator will be created.")
@@ -58,10 +57,6 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             _LOGGER.debug("The subscription exists, unsubscribing...")
             _unsubscribe()
             hass.data[DOMAIN].get(config_entry.entry_id)["unsubscribe"] = None
-
-        # Clear the entities data
-        _LOGGER.debug("Clearing the entities entries.")
-        hass.data[DOMAIN][config_entry.entry_id]["entities"] = {}
 
     return unload_ok
 
