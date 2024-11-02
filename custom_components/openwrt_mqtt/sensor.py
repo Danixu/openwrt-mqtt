@@ -58,8 +58,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     entity = NumericEntity(coordinator, entry, device_data)
                 elif device_data["type"] == "float":
                     entity = FloatEntity(coordinator, entry, device_data)
-                elif device_data["type"] == "octets":
-                    entity = OctectsEntity(coordinator, entry, device_data)
                 else:
                     _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
                                     "Please, report this to the developer.", device_data["type"])
@@ -155,24 +153,10 @@ class FloatEntity(BaseEntity):
 
 class NumericEntity(BaseEntity):
     def _value_conversion(self, value):
-        # Convert the value from str to float and then from octets to bits.
+        # Convert the value from str to int.
         # Bits should not have decimals, so will be converted to int.
         try:
             value = int(value)
-
-        except Exception as e:
-            _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
-
-        _LOGGER.debug("Value: %d", value)
-        return value
-
-
-class OctectsEntity(BaseEntity):
-    def _value_conversion(self, value):
-        # Convert the value from str to float and then from octets to bits.
-        # Bits should not have decimals, so will be converted to int.
-        try:
-            value = int(round(float(value) * 8, 0))
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)

@@ -105,11 +105,11 @@ ALLOWED_SENSORS = {
             ]
         },
         "if_octets": {
-            "sensor_type": "octets",
+            "sensor_type": "numeric",
             "icon": "mdi:router",
             "enabled_default": True,
             "precision": 2,
-            "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
+            "native_unit_of_measurement": UnitOfDataRate.BYTES_PER_SECOND,
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
             "device_class": SensorDeviceClass.DATA_RATE,
             "partitions": [
@@ -139,10 +139,10 @@ ALLOWED_SENSORS = {
     },
     "ipstatistics-all": {
         "ip_stats_octets": {
-            "sensor_type": "octets",
+            "sensor_type": "numeric",
             "enabled_default": True,
             "precision": 2,
-            "native_unit_of_measurement": UnitOfDataRate.BITS_PER_SECOND,
+            "native_unit_of_measurement": UnitOfDataRate.BYTES_PER_SECOND,
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
             "device_class": SensorDeviceClass.DATA_RATE,
             "partitions": [
