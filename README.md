@@ -24,7 +24,7 @@ The communication is done from the OpenWRT device and the HASS instance to the B
 
 ## ToDo
 
-* Update the entity in real time (Actually the HASS instance is polling for updates)
+* ~~Update the entity in real time (Actually the HASS instance is polling for updates)~~
 * Devices autodiscovery
 
 ## Installation
