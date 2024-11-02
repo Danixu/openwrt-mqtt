@@ -7,7 +7,7 @@ from homeassistant.components.mqtt import (
 )
 
 from .constants import DOMAIN
-from .coordinator import OpenWRTMqttCoordinator
+#from .coordinator import OpenWRTMqttCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,21 +17,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     _LOGGER.debug("Creating the coordinator...")
     # Create the Data Coordinator
-    coordinator = OpenWRTMqttCoordinator(hass, entry)
+    #coordinator = OpenWRTMqttCoordinator(hass, entry)
 
     if not hass.data[DOMAIN].get(entry.entry_id, False):
         _LOGGER.debug("There is no integration data so will be created.")
         hass.data[DOMAIN][entry.entry_id] = {
-            "coordinator": coordinator,
-            "devices": {},
-            "entities": {}
+            #"coordinator": coordinator,
+            "unsubscribe": None,
+            "devices": {}
         }
     else:
         _LOGGER.debug("There is integration data. The new coordinator will be created.")
-        hass.data[DOMAIN][entry.entry_id]["coordinator"] = coordinator
+        #hass.data[DOMAIN][entry.entry_id]["coordinator"] = coordinator
 
     # First data update
-    await coordinator.async_config_entry_first_refresh()
+    #await coordinator.async_config_entry_first_refresh()
 
     # Register the new sensors platform
     _LOGGER.debug("Registering sensors platform.")
@@ -50,19 +50,13 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     # If everything was ok
     if unload_ok:
-        _LOGGER.debug("Getting the coordinator.")
-        # Get the coordinator
-        coordinator = hass.data[DOMAIN].get(config_entry.entry_id)["coordinator"]
-
+        _LOGGER.debug("Unload OK. Removing MQTT subscription if required.")
         # and if exists unsubscribe from the topic
-        if coordinator:
-            _LOGGER.debug("The coordinator exists. Unsuscribing from the MQTT.")
-            # Unsubscribe from MQTT (if required)
-            await coordinator.async_unsubscribe_from_topic()
-
-        # Clear the entities data
-        _LOGGER.debug("Clearing the entities entries.")
-        hass.data[DOMAIN][config_entry.entry_id]["entities"] = {}
+        _unsubscribe = hass.data[DOMAIN].get(config_entry.entry_id)["unsubscribe"]
+        if _unsubscribe:
+            _LOGGER.debug("The subscription exists, unsubscribing...")
+            _unsubscribe()
+            hass.data[DOMAIN].get(config_entry.entry_id)["unsubscribe"] = None
 
     return unload_ok
 

@@ -207,7 +207,7 @@ def publish_ipstatistics(client, topic, scheduler):
         print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}` to topic `{publish_topic_prefix}/ip_stats_octets`")
     else:
         print(f"Failed to send `{epoch}:{first_value}:{second_value}:{third_value}:{fourth_value}` to topic `{publish_topic_prefix}/ip_stats_octets`")
-    
+
     scheduler.enter(MESSAGES_DELAY, 1, publish_ipstatistics, (client, topic, scheduler))
 
 
@@ -235,10 +235,10 @@ def publish_memory(client, topic, scheduler):
         "percent-slab_unrecl",
         "percent-used"
     ]
-    
+
     for item in numeric:
         current = random.randint(0, 134217728)
-    
+
         # Sent the three messages
         result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}\x00")
         if result[0] == 0:
@@ -248,7 +248,7 @@ def publish_memory(client, topic, scheduler):
 
     for item in percentage:
         current = random.uniform(0.0, 100.0)
-    
+
         # Sent the three messages
         result = client.publish(f"{publish_topic_prefix}/{item}", f"{epoch}:{current}\x00")
         if result[0] == 0:
@@ -292,7 +292,7 @@ def publish_processor(client, topic, scheduler):
 def publish_systemload(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/load"
     epoch = time.time()
-    
+
     # Sent the four messages
     first_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
     second_value = random.uniform(0, OPENWRT_CONFS["simulated_cpu"] * 2)
@@ -302,14 +302,14 @@ def publish_systemload(client, topic, scheduler):
         print(f"Sent `{epoch}:{first_value}:{second_value}:{third_value}` to topic `{publish_topic_prefix}/load`")
     else:
         print(f"Failed to send `{epoch}:{first_value}:{second_value}:{third_value}` to topic `{publish_topic_prefix}/load`")
-    
+
     scheduler.enter(MESSAGES_DELAY, 1, publish_systemload, (client, topic, scheduler))
 
 
 def publish_thermal(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/thermal"
     epoch = time.time()
-    
+
     # Send the temperature measurement
     temperature = random.uniform(0, 90)
     result = client.publish(f"{publish_topic_prefix}-thermal_zone0/temperature", f"{epoch}:{temperature}\x00")
@@ -317,7 +317,7 @@ def publish_thermal(client, topic, scheduler):
         print(f"Sent `{epoch}:{temperature}` to topic `{publish_topic_prefix}-thermal_zone0/temperature`")
     else:
         print(f"Failed to send `{epoch}:{temperature}` to topic `{publish_topic_prefix}-thermal_zone0/temperature`")
-    
+
     # Send the cooling device state
     cooling_state = random.randint(0, 3)
     result = client.publish(f"{publish_topic_prefix}-cooling_device0/gauge", f"{epoch}:{cooling_state}\x00")
@@ -325,14 +325,14 @@ def publish_thermal(client, topic, scheduler):
         print(f"Sent `{epoch}:{cooling_state}` to topic `{publish_topic_prefix}-cooling_device0/load`")
     else:
         print(f"Failed to send `{epoch}:{cooling_state}` to topic `{publish_topic_prefix}-cooling_device0/gauge`")
-    
+
     scheduler.enter(MESSAGES_DELAY, 1, publish_thermal, (client, topic, scheduler))
 
 
 def publish_uptime(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/uptime"
     epoch = time.time()
-    
+
     # Send the temperature measurement
     elapsed = datetime.datetime.now() - start_time
     result = client.publish(f"{publish_topic_prefix}/uptime", f"{epoch}:{elapsed.seconds}\x00")
@@ -341,14 +341,13 @@ def publish_uptime(client, topic, scheduler):
     else:
         print(f"Failed to send `{epoch}:{elapsed.seconds}` to topic `{publish_topic_prefix}/uptime`")
 
-    
     scheduler.enter(MESSAGES_DELAY, 1, publish_uptime, (client, topic, scheduler))
-    
+
 
 def publish_wireless(client, topic, scheduler):
     publish_topic_prefix = f"{topic}/iwinfo"
     epoch = time.time()
-    
+
     for wl_device in OPENWRT_ROUTERS_WLANS:
         # Send the stations
         stations = random.randint(0, 100)
@@ -358,7 +357,7 @@ def publish_wireless(client, topic, scheduler):
             print(f"Sent `{epoch}:{stations}` to topic `{final_topic}`")
         else:
             print(f"Failed to send `{epoch}:{stations}` to topic `{final_topic}`")
-            
+
         # Send the Signal Quality
         signal_quality = -(random.randint(30, 100))
         final_topic = f"{publish_topic_prefix}-{wl_device}/signal_quality"
@@ -367,7 +366,7 @@ def publish_wireless(client, topic, scheduler):
             print(f"Sent `{epoch}:{signal_quality}` to topic `{final_topic}`")
         else:
             print(f"Failed to send `{epoch}:{signal_quality}` to topic `{final_topic}`")
-            
+
         # Send the Signal Noise
         signal_noise = -(random.randint(30, 100))
         final_topic = f"{publish_topic_prefix}-{wl_device}/signal_noise"
@@ -376,7 +375,7 @@ def publish_wireless(client, topic, scheduler):
             print(f"Sent `{epoch}:{signal_noise}` to topic `{final_topic}`")
         else:
             print(f"Failed to send `{epoch}:{signal_noise}` to topic `{final_topic}`")
-            
+
         # Send the Signal Power
         signal_power = -(random.randint(30, 100))
         final_topic = f"{publish_topic_prefix}-{wl_device}/signal_power"
@@ -385,7 +384,7 @@ def publish_wireless(client, topic, scheduler):
             print(f"Sent `{epoch}:{signal_power}` to topic `{final_topic}`")
         else:
             print(f"Failed to send `{epoch}:{signal_power}` to topic `{final_topic}`")
-            
+
         # Send the bitrate
         bitrate = random.randint(52000000, 1000000000)
         final_topic = f"{publish_topic_prefix}-{wl_device}/bitrate"
@@ -395,7 +394,6 @@ def publish_wireless(client, topic, scheduler):
         else:
             print(f"Failed to send `{epoch}:{bitrate}` to topic `{topic}`")
 
-    
     scheduler.enter(MESSAGES_DELAY, 1, publish_wireless, (client, topic, scheduler))
 
 
@@ -427,7 +425,6 @@ def run():
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_uptime, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
         if MESSAGES_GROUPS["wireless"]:
             my_scheduler.enter(random.randint(1, MESSAGES_DELAY+1), 1, publish_wireless, (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-            
 
 
     my_scheduler.run()
