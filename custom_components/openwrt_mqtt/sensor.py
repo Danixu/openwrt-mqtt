@@ -11,6 +11,9 @@ from .constants import DOMAIN, ALLOWED_SENSORS
 _LOGGER = logging.getLogger(__name__)
 
 def get_device_name(device_type, name, entity_name):
+    """
+    Process the real name for the device depending of its type.
+    """
     if device_type == "processor":
         name = name.format(entity_name.upper())
     elif device_type == "interface":
@@ -40,6 +43,36 @@ def _determine_entity_device_group(entity_name):
     if re.match("iwinfo-.*", entity_name):
         return "wireless"
     return entity_name
+
+def _create_new_entity(
+        _hass, _entry, _async_add_entities,
+        device_name, sensor_config, sensor_id,
+        partition, device_group, value):
+    _LOGGER.debug(
+        "The sensor doesn't exists yet. Adding the entity for %s",
+        sensor_id
+    )
+    if sensor_config["sensor_type"] == "numeric":
+        entity = NumericEntity(
+            _entry, device_name, sensor_config,
+            f"{_entry.data['id']}_{sensor_id}",
+            partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
+        )
+    elif sensor_config["sensor_type"] == "float":
+        entity = FloatEntity(
+            _entry, device_name, sensor_config,
+            f"{_entry.data['id']}_{sensor_id}",
+            partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
+        )
+    else:
+        _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
+                        "Please, report this to the developer.",
+                        sensor_config["type"])
+        return
+    _async_add_entities([entity])
+    _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group][sensor_id] = entity
+    if entity.enabled:
+        entity.update_value(value)
 
 async def _received_message(msg, _hass, _entry, _async_add_entities):
     """
@@ -95,31 +128,10 @@ async def _received_message(msg, _hass, _entry, _async_add_entities):
         entity = None
         if sensor_id not in _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group]:
             device_name = get_device_name(device_group, partition["name"], entity_found.groups()[0])
-            _LOGGER.debug(
-                "The sensor doesn't exists yet. Adding the entity for %s",
-                sensor_id
-            )
-            if sensor_config["sensor_type"] == "numeric":
-                entity = NumericEntity(
-                    _entry, device_name, sensor_config,
-                    f"{_entry.data['id']}_{sensor_id}",
-                    partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
-                )
-            elif sensor_config["sensor_type"] == "float":
-                entity = FloatEntity(
-                    _entry, device_name, sensor_config,
-                    f"{_entry.data['id']}_{sensor_id}",
-                    partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
-                )
-            else:
-                _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
-                                "Please, report this to the developer.",
-                                sensor_config["type"])
-                continue
-            _async_add_entities([entity])
-            _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group][sensor_id] = entity
-            if entity.enabled:
-                entity.update_value(splitted_values[(1 + idx)])
+            _create_new_entity(
+                _hass, _entry, _async_add_entities, device_name,
+                sensor_config, sensor_id, partition, device_group,
+                splitted_values[(1 + idx)])
 
         else:
             entity = _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group][sensor_id]
@@ -134,11 +146,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
         await async_subscribe(
             hass,
             f"{entry.data["mqtt_topic"]}/#",
-            partial(_received_message, _hass = hass, _entry = entry, _async_add_entities = async_add_entities)
+            partial(
+                _received_message, _hass = hass, _entry = entry, 
+                _async_add_entities = async_add_entities)
         )
     )
 
 class BaseEntity(SensorEntity):
+    """
+    Base class with the common methods and attributes for the integration entities.
+    """
     should_poll = False
     def __init__(self, entry, device_name, sensor_config, unique_id, icon):
         self.entry = entry
@@ -153,8 +170,10 @@ class BaseEntity(SensorEntity):
         self._attr_entity_category = (
             EntityCategory.DIAGNOSTIC if sensor_config.get("diagnostic", False) else None)
 
-        self._attr_native_unit_of_measurement = sensor_config.get("native_unit_of_measurement", None)
-        self._attr_suggested_unit_of_measurement = sensor_config.get("suggested_unit_of_measurement", None)
+        self._attr_native_unit_of_measurement = sensor_config.get(
+            "native_unit_of_measurement", None)
+        self._attr_suggested_unit_of_measurement = sensor_config.get(
+            "suggested_unit_of_measurement", None)
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_device_class = sensor_config.get("device_class", None)
 
@@ -172,6 +191,9 @@ class BaseEntity(SensorEntity):
         return value
 
     def update_value(self, value):
+        """
+        Updates the entity value and report the update to HASS
+        """
         # Convert the retrieved value
         self._native_value = self._value_conversion(value)
         # Inform to HASS about the update
@@ -179,11 +201,17 @@ class BaseEntity(SensorEntity):
 
     @property
     def native_value(self):
+        """
+        Native sensor value without conversion.
+        """
         # Return the stored value
         return self._native_value
 
     @property
     def device_info(self):
+        """
+        Returns a device info to be identified in HASS
+        """
         device_info = {
             "identifiers": {(DOMAIN, self.entry.entry_id)},
             "name": f"OpenWRT Device: {self.entry.data['id']}",
@@ -194,6 +222,9 @@ class BaseEntity(SensorEntity):
 
 
 class FloatEntity(BaseEntity):
+    """
+    Entity that is intented to be used with float values.
+    """
     def _value_conversion(self, value):
         # Convert the value from str to float and then from octets to bits.
         # Bits should not have decimals, so will be converted to int.
@@ -208,6 +239,9 @@ class FloatEntity(BaseEntity):
 
 
 class NumericEntity(BaseEntity):
+    """
+    Entity that is intented to be used with int values.
+    """
     def _value_conversion(self, value):
         # Convert the value from str to int.
         # Bits should not have decimals, so will be converted to int.
