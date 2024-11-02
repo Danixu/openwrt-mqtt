@@ -371,6 +371,74 @@ def publish_wireless(client, topic, scheduler):
     scheduler.enter(MESSAGES_DELAY, 1, publish_wireless, (client, topic, scheduler))
 
 
+def send_router_messages(client, scheduler, router):
+    if MESSAGES_GROUPS["conntrack"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_conntrack,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["contextswitch"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_contextswitch,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["dhcpleases"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_dhcpleases,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["interfaces"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_interfaces,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["ipstatistics"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_ipstatistics,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["memory"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_memory,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["processor"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_processor,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["systemload"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_systemload,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["thermal"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_thermal,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["uptime"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_uptime,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+    if MESSAGES_GROUPS["wireless"]:
+        scheduler.enter(
+            random.randint(1, MESSAGES_DELAY+1),
+            1,
+            publish_wireless,
+            (client, f"{MQTT_TOPIC}/{router}", scheduler))
+
 def run():
     """
     Main function executed when the script runs
@@ -378,76 +446,11 @@ def run():
     client = connect_mqtt()
     client.loop_start()
 
-    my_scheduler = sched.scheduler(time.time, time.sleep)
+    scheduler = sched.scheduler(time.time, time.sleep)
     for router in OPENWRT_ROUTERS_NAME:
-        if MESSAGES_GROUPS["conntrack"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_conntrack,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["contextswitch"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_contextswitch,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["dhcpleases"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_dhcpleases,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["interfaces"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_interfaces,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["ipstatistics"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_ipstatistics,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["memory"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_memory,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["processor"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_processor,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["systemload"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_systemload,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["thermal"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_thermal,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["uptime"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_uptime,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
-        if MESSAGES_GROUPS["wireless"]:
-            my_scheduler.enter(
-                random.randint(1, MESSAGES_DELAY+1),
-                1,
-                publish_wireless,
-                (client, f"{MQTT_TOPIC}/{router}", my_scheduler))
+        send_router_messages(client, scheduler, router)
 
-    my_scheduler.run()
+    scheduler.run()
 
     client.loop_stop()
 
