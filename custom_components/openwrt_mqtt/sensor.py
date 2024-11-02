@@ -121,7 +121,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id] = entity
                     if entity.enabled:
                         entity.update_value(splitted_values[(1 + idx)])
-                    
+
                 else:
                     entity = hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id]
                     if entity.enabled:
@@ -172,7 +172,6 @@ class BaseEntity(SensorEntity):
 
     @property
     def native_value(self):
-        _LOGGER.debug("GETTING NATIVE VALUE: %r", self._attr_device_class)
         # Return the stored value
         return self._native_value
 

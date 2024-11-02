@@ -60,11 +60,9 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 async def async_remove_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Manejar la eliminación de una config entry."""
     _LOGGER.debug("Removing config entry with id %s", config_entry.entry_id)
-
-    # Verifica si el config_entry_id es el que corresponde a tu integración
+    # Verify if the config_entry_id is the same as the integrations id
     if config_entry.entry_id in hass.data[DOMAIN]:
         _LOGGER.debug("Removing integration data for entry %s", config_entry.entry_id)
         hass.data[DOMAIN].pop(config_entry.entry_id, None)
 
-    # Aquí puedes eliminar cualquier otro estado persistente o archivos relacionados.
     _LOGGER.debug("Cleanup completed for config entry removal.")
