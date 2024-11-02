@@ -1,3 +1,4 @@
+from functools import partial
 import logging
 import re
 
@@ -40,95 +41,101 @@ def _determine_entity_device_group(entity_name):
         return "wireless"
     return entity_name
 
+async def _received_message(msg, _hass, _entry, _async_add_entities):
+    """
+    Function called when MQTT message arrives.
+    This function updates the devices and sensors in the coordinator if requried.
+    """
+    _LOGGER.info("Received message in %s: %s", msg.topic, msg.payload)
+    # Extract the device type and the entity from the topic
+    entity_found = re.match(".*\\/(.+)\\/(.+)$", msg.topic)
 
+    if not entity_found:
+        _LOGGER.debug("Unable to extract the data from the topic.")
+        return
+
+    _LOGGER.debug(
+        "Detected a device %s with an entity %s",
+        entity_found.groups()[0],
+        entity_found.groups()[1]
+    )
+
+    # Get the device group to avoid to create a device by every cpu for example
+    device_group = _determine_entity_device_group(entity_found.groups()[0])
+    if device_group is None:
+        _LOGGER.debug(
+            "The device group for the device %s cannot be determined.",
+            entity_found.groups()[0]
+        )
+        return
+
+    sensor_config = ALLOWED_SENSORS.get(
+        device_group, {}).get(entity_found.groups()[1], None)
+    if not sensor_config:
+        _LOGGER.debug(
+            "The sensor %s of the device group %s is not allowed.",
+            device_group,
+            entity_found.groups()[1]
+        )
+        return
+
+    # Now just update the entity data:
+    splitted_values = msg.payload.rstrip('\x00').split(":")
+    if len(sensor_config["partitions"]) != (len(splitted_values) - 1):
+        _LOGGER.warning(
+            "The sensor %s of the device group %s partitions doesn't matches the template. "
+            "Sensor will not be changed.",
+            device_group,
+            entity_found.groups()[1]
+        )
+        return
+
+    for idx, partition in enumerate(sensor_config["partitions"]):
+        sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
+        entity = None
+        if sensor_id not in _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group]:
+            device_name = get_device_name(device_group, partition["name"], entity_found.groups()[0])
+            _LOGGER.debug(
+                "The sensor doesn't exists yet. Adding the entity for %s",
+                sensor_id
+            )
+            if sensor_config["sensor_type"] == "numeric":
+                entity = NumericEntity(
+                    _entry, device_name, sensor_config,
+                    f"{_entry.data['id']}_{sensor_id}",
+                    partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
+                )
+            elif sensor_config["sensor_type"] == "float":
+                entity = FloatEntity(
+                    _entry, device_name, sensor_config,
+                    f"{_entry.data['id']}_{sensor_id}",
+                    partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
+                )
+            else:
+                _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
+                                "Please, report this to the developer.",
+                                sensor_config["type"])
+                continue
+            _async_add_entities([entity])
+            _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group][sensor_id] = entity
+            if entity.enabled:
+                entity.update_value(splitted_values[(1 + idx)])
+
+        else:
+            entity = _hass.data[DOMAIN][_entry.entry_id]["devices"][device_group][sensor_id]
+            if entity.enabled:
+                entity.update_value(splitted_values[(1 + idx)])
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    async def _received_message(msg):
-        """
-        Function called when MQTT message arrives.
-        This function updates the devices and sensors in the coordinator if requried.
-        """
-        _LOGGER.info("Received message in %s: %s", msg.topic, msg.payload)
-        # Extract the device type and the entity from the topic
-        entity_found = re.match(".*\\/(.+)\\/(.+)$", msg.topic)
-
-        if not entity_found:
-            _LOGGER.debug("Unable to extract the data from the topic.")
-        else:
-            _LOGGER.debug(
-                "Detected a device %s with an entity %s",
-                entity_found.groups()[0],
-                entity_found.groups()[1]
-            )
-
-            # Get the device group to avoid to create a device by every cpu for example
-            device_group = _determine_entity_device_group(entity_found.groups()[0])
-            if device_group is None:
-                _LOGGER.debug(
-                    "The device group for the device %s cannot be determined.",
-                    entity_found.groups()[0]
-                )
-                return
-
-            sensor_config = ALLOWED_SENSORS.get(
-                device_group, {}).get(entity_found.groups()[1], None)
-            if not sensor_config:
-                _LOGGER.debug(
-                    "The sensor %s of the device group %s is not allowed.",
-                    device_group,
-                    entity_found.groups()[1]
-                )
-                return
-
-            # Now just update the entity data:
-            splitted_values = msg.payload.rstrip('\x00').split(":")
-            if len(sensor_config["partitions"]) != (len(splitted_values) - 1):
-                _LOGGER.warning(
-                    "The sensor %s of the device group %s partitions doesn't matches the template. "
-                    "Sensor will not be changed.",
-                    device_group,
-                    entity_found.groups()[1]
-                )
-                return
-
-            for idx, partition in enumerate(sensor_config["partitions"]):
-                sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
-                entity = None
-                if sensor_id not in hass.data[DOMAIN][entry.entry_id]["devices"][device_group]:
-                    device_name = get_device_name(device_group, partition["name"], entity_found.groups()[0])
-                    _LOGGER.debug(
-                        "The sensor doesn't exists yet. Adding the entity for %s",
-                        sensor_id
-                    )
-                    if sensor_config["sensor_type"] == "numeric":
-                        entity = NumericEntity(
-                            entry, device_name, sensor_config,
-                            f"{entry.data['id']}_{sensor_id}",
-                            partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
-                        )
-                    elif sensor_config["sensor_type"] == "float":
-                        entity = FloatEntity(
-                            entry, device_name, sensor_config,
-                            f"{entry.data['id']}_{sensor_id}",
-                            partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
-                        )
-                    else:
-                        _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
-                                        "Please, report this to the developer.",
-                                        sensor_config["type"])
-                        continue
-                    async_add_entities([entity])
-                    hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id] = entity
-                    if entity.enabled:
-                        entity.update_value(splitted_values[(1 + idx)])
-
-                else:
-                    entity = hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id]
-                    if entity.enabled:
-                        entity.update_value(splitted_values[(1 + idx)])
-
+    """
+    Sensor setup function used to suscribe to the MQTT topic.
+    """
     hass.data[DOMAIN].get(entry.entry_id)["unsubscribe"] = (
-        await async_subscribe(hass, f"{entry.data["mqtt_topic"]}/#", _received_message)
+        await async_subscribe(
+            hass,
+            f"{entry.data["mqtt_topic"]}/#",
+            partial(_received_message, _hass = hass, _entry = entry, _async_add_entities = async_add_entities)
+        )
     )
 
 class BaseEntity(SensorEntity):
