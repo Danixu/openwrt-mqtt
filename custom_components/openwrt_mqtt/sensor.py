@@ -9,35 +9,25 @@ from .constants import DOMAIN, ALLOWED_SENSORS
 
 _LOGGER = logging.getLogger(__name__)
 
-def get_devices(entry_id, devices):
-    out_devices = {}
-    for device_type, sensors in devices.items():
-        for sensor_name, sensor_data in sensors.items():
-            name = sensor_data["name"]
+def get_device_name(device_type, sensor_data):
+    name = sensor_data["name"]
 
-            if device_type == "processor":
-                name = name.format(sensor_data["extracted_data"][0].upper())
-            elif device_type == "interface":
-                interface = re.match("interface-(.+)", sensor_data["extracted_data"][0])
-                name = name.format(interface.groups()[0])
-            elif device_type in ["thermal-thermal", "thermal-cooling"]:
-                device = re.match(
-                    "thermal-(thermal|cooling)_(.+)",
-                    sensor_data["extracted_data"][0]
-                )
-                name = name.format(device.groups()[1].capitalize())
-            elif device_type == "wireless":
-                interface = re.match("iwinfo-(.+)", sensor_data["extracted_data"][0])
-                name = name.format(interface.groups()[0])
+    if device_type == "processor":
+        name = name.format(sensor_data["extracted_data"][0].upper())
+    elif device_type == "interface":
+        interface = re.match("interface-(.+)", sensor_data["extracted_data"][0])
+        name = name.format(interface.groups()[0])
+    elif device_type in ["thermal-thermal", "thermal-cooling"]:
+        device = re.match(
+            "thermal-(thermal|cooling)_(.+)",
+            sensor_data["extracted_data"][0]
+        )
+        name = name.format(device.groups()[1].capitalize())
+    elif device_type == "wireless":
+        interface = re.match("iwinfo-(.+)", sensor_data["extracted_data"][0])
+        name = name.format(interface.groups()[0])
 
-            out_devices[f"{entry_id}_{device_type}_{sensor_name}"] = {
-                "name": name,
-                "type": sensor_data["sensor_config"]["sensor_type"],
-                "data": sensor_data
-            }
-
-    return out_devices
-
+    return name
 
 def _determine_entity_device_group(entity_name):
     if re.match("cpu-[\\d]+", entity_name):
@@ -112,6 +102,9 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
             for idx, partition in enumerate(sensor_config["partitions"]):
                 sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
+                append = False
+                if not sensor_id in hass.data[DOMAIN][entry.entry_id]["devices"][device_group]:
+                    append = True
                 hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id] = {
                     "sensor_config": sensor_config,
                     "extracted_data": entity_found.groups(),
@@ -126,57 +119,40 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     "value": splitted_values[(1 + idx)]
                 }
 
-    # Function to dynamically update the entities.
-    async def entities_update():
-        new_entities = []
-        _LOGGER.debug("Updating entities")
-
-        devices = get_devices(entry.data['id'], hass.data[DOMAIN][entry.entry_id]["devices"])
-
-        # Iterate over the devices and sensor in the coordinator
-        for device_id, device_data in devices.items():
-            # Verificar si la entidad ya existe
-            if device_id not in hass.data[DOMAIN][entry.entry_id]["entities"]:
-                entity = None
-
-                if device_data["type"] == "numeric":
-                    entity = NumericEntity(entry, device_data)
-                elif device_data["type"] == "float":
-                    entity = FloatEntity(entry, device_data)
-                else:
-                    _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
-                                    "Please, report this to the developer.", device_data["type"])
-                    continue
-
-                hass.data[DOMAIN][entry.entry_id]["entities"][device_id] = entity
-                new_entities.append(entity)
-
-        # Add the new entities to Home Assistant if there is any new
-        if new_entities:
-            _LOGGER.debug("There are new entities. Creating it...")
-            async_add_entities(new_entities.copy())
-
-    # Execute the first update
-    await entities_update()
+                if append:
+                    sensor_data = hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id]
+                    device_name = get_device_name(device_group, sensor_data )
+                    _LOGGER.debug(
+                        "The sensor doesn't exists yet. Adding the entity for %s",
+                        sensor_id
+                    )
+                    if sensor_config["sensor_type"] == "numeric":
+                        entity = NumericEntity(entry, device_name, sensor_data)
+                        async_add_entities([entity])
+                    elif sensor_config["sensor_type"] == "float":
+                        entity = FloatEntity(entry, device_name, sensor_data)
+                        async_add_entities([entity])
+                    else:
+                        _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
+                                        "Please, report this to the developer.",
+                                        sensor_config["type"])
+                        continue
 
     hass.data[DOMAIN].get(entry.entry_id)["unsubscribe"] = (
         await async_subscribe(hass, f"{entry.data["mqtt_topic"]}/#", _received_message)
     )
 
-    # Dynamically update when the coordinator is updated
-    #coordinator.async_add_listener(lambda: hass.async_create_task(entities_update()))
-
 class BaseEntity(SensorEntity):
-    def __init__(self, entry, sensor_data):
+    def __init__(self, entry, device_name, sensor_data):
         self.entry = entry
         self.sensor_data = sensor_data
 
-        sc = sensor_data["data"]["sensor_config"]
+        sc = sensor_data["sensor_config"]
 
         # Sensor attributes
-        self._attr_name = sensor_data["name"]
-        self._attr_icon = sensor_data["data"]["icon"]
-        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["data"]["sensor_id"]}"
+        self._attr_name = device_name
+        self._attr_icon = sensor_data["icon"]
+        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["sensor_id"]}"
         self._attr_suggested_display_precision = sc.get("precision", None)
         self._attr_entity_registry_enabled_default = sc.get("enabled_default", None)
         self._attr_entity_category = EntityCategory.DIAGNOSTIC if sc.get("diagnostic", False) else None
@@ -202,10 +178,10 @@ class BaseEntity(SensorEntity):
     @property
     def native_value(self):
         # Get the current state from the coordinator
-        sensor_id = self.sensor_data["data"]["sensor_id"]
+        sensor_id = self.sensor_data["sensor_id"]
         _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
         value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][
-            self.sensor_data["data"]["device_group"]
+            self.sensor_data["device_group"]
         ][sensor_id]["value"]
         # Convert the value using the internal function and return it
         return self._value_conversion(value)
@@ -244,7 +220,9 @@ class NumericEntity(BaseEntity):
         # Convert the value from str to int.
         # Bits should not have decimals, so will be converted to int.
         try:
-            value = int(value)
+            # Fist we will convert it to float because sometimes the values contains decimals
+            # and then we will round it.
+            value = round(float(value))
 
         except Exception as e:
             _LOGGER.warning("The sensor %s value cannot be converted: %s", self._attr_name, e)
