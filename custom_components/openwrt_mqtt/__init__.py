@@ -15,22 +15,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Loading the openwrt mqtt component!: %s", entry.source)
     hass.data.setdefault(DOMAIN, {})
 
-    if not hass.data[DOMAIN].get(entry.entry_id, False):
-        _LOGGER.debug("There is no integration data so will be created.")
-        hass.data[DOMAIN][entry.entry_id] = {
-            "unsubscribe": None,
-            "devices": {
-                "interface": {},
-                "ipstatistics-all": {},
-                "load": {},
-                "memory": {},
-                "processor": {},
-                "thermal-cooling": {},
-                "thermal-thermal": {},
-                "uptime": {},
-                "wireless": {}
-            }
+    hass.data[DOMAIN][entry.entry_id] = {
+        "unsubscribe": None,
+        "devices": {
+            "interface": {},
+            "ipstatistics-all": {},
+            "load": {},
+            "memory": {},
+            "processor": {},
+            "thermal-cooling": {},
+            "thermal-thermal": {},
+            "uptime": {},
+            "wireless": {}
         }
+    }
 
     # Register the new sensors platform
     _LOGGER.debug("Registering sensors platform.")

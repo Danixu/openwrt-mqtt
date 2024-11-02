@@ -9,22 +9,20 @@ from .constants import DOMAIN, ALLOWED_SENSORS
 
 _LOGGER = logging.getLogger(__name__)
 
-def get_device_name(device_type, sensor_data):
-    name = sensor_data["name"]
-
+def get_device_name(device_type, name, entity_name):
     if device_type == "processor":
-        name = name.format(sensor_data["extracted_data"][0].upper())
+        name = name.format(entity_name.upper())
     elif device_type == "interface":
-        interface = re.match("interface-(.+)", sensor_data["extracted_data"][0])
+        interface = re.match("interface-(.+)", entity_name)
         name = name.format(interface.groups()[0])
     elif device_type in ["thermal-thermal", "thermal-cooling"]:
         device = re.match(
             "thermal-(thermal|cooling)_(.+)",
-            sensor_data["extracted_data"][0]
+            entity_name
         )
         name = name.format(device.groups()[1].capitalize())
     elif device_type == "wireless":
-        interface = re.match("iwinfo-(.+)", sensor_data["extracted_data"][0])
+        interface = re.match("iwinfo-(.+)", entity_name)
         name = name.format(interface.groups()[0])
 
     return name
@@ -95,43 +93,39 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
             for idx, partition in enumerate(sensor_config["partitions"]):
                 sensor_id = f"{entity_found.groups()[0]}_{entity_found.groups()[1]}_{idx}"
-                append = False
+                entity = None
                 if not sensor_id in hass.data[DOMAIN][entry.entry_id]["devices"][device_group]:
-                    append = True
-                hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id] = {
-                    "sensor_config": sensor_config,
-                    "extracted_data": entity_found.groups(),
-                    "sensor_id": sensor_id,
-                    "icon": partition.get(
-                        "icon",
-                        sensor_config.get("icon", "mdi:cancel")
-                    ),
-                    "timestamp": splitted_values[0],
-                    "name": partition["name"]
-                }
-
-                if append:
-                    sensor_data = hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id]
-                    device_name = get_device_name(device_group, sensor_data )
+                    device_name = get_device_name(device_group, partition["name"], entity_found.groups()[0])
                     _LOGGER.debug(
                         "The sensor doesn't exists yet. Adding the entity for %s",
                         sensor_id
                     )
                     if sensor_config["sensor_type"] == "numeric":
-                        entity = NumericEntity(entry, device_name, sensor_data)
-                        async_add_entities([entity])
-                        entity.update_value(splitted_values[(1 + idx)])
+                        entity = NumericEntity(
+                            entry, device_name, sensor_config,
+                            f"{entry.data['id']}_{sensor_id}",
+                            partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
+                        )
                     elif sensor_config["sensor_type"] == "float":
-                        entity = FloatEntity(entry, device_name, sensor_data)
-                        async_add_entities([entity])
-                        entity.update_value(splitted_values[(1 + idx)])
+                        entity = FloatEntity(
+                            entry, device_name, sensor_config,
+                            f"{entry.data['id']}_{sensor_id}",
+                            partition.get("icon", sensor_config.get("icon", "mdi:cancel"))
+                        )
                     else:
                         _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
                                         "Please, report this to the developer.",
                                         sensor_config["type"])
                         continue
+                    async_add_entities([entity])
+                    hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id] = entity
+                    if entity.enabled:
+                        entity.update_value(splitted_values[(1 + idx)])
+                    
                 else:
-                    pass #entity.update_value(splitted_values[(1 + idx)])
+                    entity = hass.data[DOMAIN][entry.entry_id]["devices"][device_group][sensor_id]
+                    if entity.enabled:
+                        entity.update_value(splitted_values[(1 + idx)])
 
     hass.data[DOMAIN].get(entry.entry_id)["unsubscribe"] = (
         await async_subscribe(hass, f"{entry.data["mqtt_topic"]}/#", _received_message)
@@ -139,26 +133,23 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 class BaseEntity(SensorEntity):
     should_poll = False
-    def __init__(self, entry, device_name, sensor_data):
+    def __init__(self, entry, device_name, sensor_config, unique_id, icon):
         self.entry = entry
-        self.sensor_data = sensor_data
         self._native_value = None
-
-        sc = sensor_data["sensor_config"]
 
         # Sensor attributes
         self._attr_name = device_name
-        self._attr_icon = sensor_data["icon"]
-        self._attr_unique_id = f"{entry.data['id']}_{sensor_data["sensor_id"]}"
-        self._attr_suggested_display_precision = sc.get("precision", None)
-        self._attr_entity_registry_enabled_default = sc.get("enabled_default", None)
+        self._attr_icon = icon
+        self._attr_unique_id = unique_id
+        self._attr_suggested_display_precision = sensor_config.get("precision", None)
+        self._attr_entity_registry_enabled_default = sensor_config.get("enabled_default", None)
         self._attr_entity_category = (
-            EntityCategory.DIAGNOSTIC if sc.get("diagnostic", False) else None)
+            EntityCategory.DIAGNOSTIC if sensor_config.get("diagnostic", False) else None)
 
-        self._attr_native_unit_of_measurement = sc.get("native_unit_of_measurement", None)
-        self._attr_suggested_unit_of_measurement = sc.get("suggested_unit_of_measurement", None)
+        self._attr_native_unit_of_measurement = sensor_config.get("native_unit_of_measurement", None)
+        self._attr_suggested_unit_of_measurement = sensor_config.get("suggested_unit_of_measurement", None)
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_class = sc.get("device_class", None)
+        self._attr_device_class = sensor_config.get("device_class", None)
 
     def _value_conversion(self, value):
         """Function to process the original value. The default will be just return the value, 
@@ -181,12 +172,9 @@ class BaseEntity(SensorEntity):
 
     @property
     def native_value(self):
+        _LOGGER.debug("GETTING NATIVE VALUE: %r", self._attr_device_class)
         # Return the stored value
         return self._native_value
-
-    #async def async_update(self):
-        # Request a data update to the coordinator
-        #await self.coordinador.async_request_refresh()
 
     @property
     def device_info(self):
