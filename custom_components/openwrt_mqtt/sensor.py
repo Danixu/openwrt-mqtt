@@ -32,16 +32,15 @@ def get_device_name(device_type, sensor_data):
 def _determine_entity_device_group(entity_name):
     if re.match("cpu-[\\d]+", entity_name):
         return "processor"
-    elif re.match("interface-.+", entity_name):
+    if re.match("interface-.+", entity_name):
         return "interface"
-    elif re.match("thermal-thermal_.*", entity_name):
+    if re.match("thermal-thermal_.*", entity_name):
         return "thermal-thermal"
-    elif re.match("thermal-cooling_.*", entity_name):
+    if re.match("thermal-cooling_.*", entity_name):
         return "thermal-cooling"
-    elif re.match("iwinfo-.*", entity_name):
+    if re.match("iwinfo-.*", entity_name):
         return "wireless"
-    else:
-        return entity_name
+    return entity_name
 
 
 
@@ -155,7 +154,8 @@ class BaseEntity(SensorEntity):
         self._attr_unique_id = f"{entry.data['id']}_{sensor_data["sensor_id"]}"
         self._attr_suggested_display_precision = sc.get("precision", None)
         self._attr_entity_registry_enabled_default = sc.get("enabled_default", None)
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC if sc.get("diagnostic", False) else None
+        self._attr_entity_category = (
+            EntityCategory.DIAGNOSTIC if sc.get("diagnostic", False) else None)
 
         self._attr_native_unit_of_measurement = sc.get("native_unit_of_measurement", None)
         self._attr_suggested_unit_of_measurement = sc.get("suggested_unit_of_measurement", None)
