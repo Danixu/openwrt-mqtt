@@ -10,10 +10,12 @@ from homeassistant.const import (
 
 DOMAIN = 'openwrt_mqtt'
 ICONS = {
-    "processor": "mdi:chip",
-    "memory": "mdi:memory",
     "conntrack": "mdi:lan-connect",
-    "contextswitch": "mdi:swap-horizontal"
+    "contextswitch": "mdi:swap-horizontal",
+    "memory": "mdi:memory",
+    "processor": "mdi:chip",
+    "router-wireless": "mdi:router-wireless",
+    "router": "mdi:router"
 }
 ALLOWED_SENSORS = {
     "conntrack": {
@@ -66,7 +68,7 @@ ALLOWED_SENSORS = {
     "dhcpleases": {
         "count": {
             "sensor_type": "numeric",
-            "icon": "mdi:router",
+            "icon": ICONS["router"],
             "enabled_default": True,
             "partitions": [
                 {
@@ -78,7 +80,7 @@ ALLOWED_SENSORS = {
     "interface": {
         "if_dropped": {
             "sensor_type": "numeric",
-            "icon": "mdi:router",
+            "icon": ICONS["router"],
             "diagnostic": True,
             "unit": "packets",
             "partitions": [
@@ -92,7 +94,7 @@ ALLOWED_SENSORS = {
         },
         "if_errors": {
             "sensor_type": "numeric",
-            "icon": "mdi:router",
+            "icon": ICONS["router"],
             "diagnostics": True,
             "unit": "packets",
             "partitions": [
@@ -106,7 +108,7 @@ ALLOWED_SENSORS = {
         },
         "if_octets": {
             "sensor_type": "numeric",
-            "icon": "mdi:router",
+            "icon": ICONS["router"],
             "enabled_default": True,
             "precision": 2,
             "native_unit_of_measurement": UnitOfDataRate.BYTES_PER_SECOND,
@@ -123,7 +125,7 @@ ALLOWED_SENSORS = {
         },
         "if_packets": {
             "sensor_type": "float",
-            "icon": "mdi:router",
+            "icon": ICONS["router"],
             "enabled_default": True,
             "unit": "packets",
             "precision": 2,
@@ -484,7 +486,7 @@ ALLOWED_SENSORS = {
     "wireless": {
         "stations": {
             "sensor_type": "numeric",
-            "icon": "mdi:router-wireless",
+            "icon": ICONS["router-wireless"],
             "enabled_default": True,
             "partitions": [
                 {
@@ -494,9 +496,7 @@ ALLOWED_SENSORS = {
         },
         "signal_quality": {
             "sensor_type": "float",
-            #"native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-            #"device_class": SensorDeviceClass.SIGNAL_STRENGTH,
-            "icon": "mdi:router-wireless",
+            "icon": ICONS["router-wireless"],
             "enabled_default": True,
             "partitions": [
                 {
@@ -508,7 +508,7 @@ ALLOWED_SENSORS = {
             "sensor_type": "numeric",
             "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
             "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
-            "icon": "mdi:router-wireless",
+            "icon": ICONS["router-wireless"],
             "enabled_default": True,
             "partitions": [
                 {
@@ -520,7 +520,7 @@ ALLOWED_SENSORS = {
             "sensor_type": "numeric",
             "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
             "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
-            "icon": "mdi:router-wireless",
+            "icon": ICONS["router-wireless"],
             "enabled_default": True,
             "partitions": [
                 {
@@ -534,7 +534,7 @@ ALLOWED_SENSORS = {
             "suggested_unit_of_measurement": UnitOfDataRate.MEGABITS_PER_SECOND,
             "device_class": SensorDeviceClass.DATA_RATE,
             "precision": 2,
-            "icon": "mdi:router-wireless",
+            "icon": ICONS["router-wireless"],
             "enabled_default": True,
             "partitions": [
                 {
