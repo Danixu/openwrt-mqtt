@@ -45,8 +45,6 @@ def _determine_entity_device_group(entity_name):
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    # = hass.data[DOMAIN][entry.entry_id]["coordinator"]
-
     async def _received_message(msg):
         """
         Function called when MQTT message arrives.
@@ -84,10 +82,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
                 )
                 return
 
-            # Check if the group already exists and if not, create it
-            if device_group not in hass.data[DOMAIN][entry.entry_id]["devices"]:
-                hass.data[DOMAIN][entry.entry_id]["devices"][device_group]= {}
-
             # Now just update the entity data:
             splitted_values = msg.payload.rstrip('\x00').split(":")
             if len(sensor_config["partitions"]) != (len(splitted_values) - 1):
@@ -108,14 +102,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     "sensor_config": sensor_config,
                     "extracted_data": entity_found.groups(),
                     "sensor_id": sensor_id,
-                    "device_group": device_group,
                     "icon": partition.get(
                         "icon",
                         sensor_config.get("icon", "mdi:cancel")
                     ),
                     "timestamp": splitted_values[0],
-                    "name": partition["name"],
-                    "value": splitted_values[(1 + idx)]
+                    "name": partition["name"]
                 }
 
                 if append:
@@ -128,23 +120,29 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     if sensor_config["sensor_type"] == "numeric":
                         entity = NumericEntity(entry, device_name, sensor_data)
                         async_add_entities([entity])
+                        entity.update_value(splitted_values[(1 + idx)])
                     elif sensor_config["sensor_type"] == "float":
                         entity = FloatEntity(entry, device_name, sensor_data)
                         async_add_entities([entity])
+                        entity.update_value(splitted_values[(1 + idx)])
                     else:
                         _LOGGER.warning("The sensor type %s is not managed by the entities setup. "
                                         "Please, report this to the developer.",
                                         sensor_config["type"])
                         continue
+                else:
+                    pass #entity.update_value(splitted_values[(1 + idx)])
 
     hass.data[DOMAIN].get(entry.entry_id)["unsubscribe"] = (
         await async_subscribe(hass, f"{entry.data["mqtt_topic"]}/#", _received_message)
     )
 
 class BaseEntity(SensorEntity):
+    should_poll = False
     def __init__(self, entry, device_name, sensor_data):
         self.entry = entry
         self.sensor_data = sensor_data
+        self._native_value = None
 
         sc = sensor_data["sensor_config"]
 
@@ -175,16 +173,16 @@ class BaseEntity(SensorEntity):
         """
         return value
 
+    def update_value(self, value):
+        # Convert the retrieved value
+        self._native_value = self._value_conversion(value)
+        # Inform to HASS about the update
+        self.async_write_ha_state()
+
     @property
     def native_value(self):
-        # Get the current state from the coordinator
-        sensor_id = self.sensor_data["sensor_id"]
-        _LOGGER.debug("Getting the state of the sensor %s", sensor_id)
-        value = self.hass.data[DOMAIN][self.entry.entry_id]["devices"][
-            self.sensor_data["device_group"]
-        ][sensor_id]["value"]
-        # Convert the value using the internal function and return it
-        return self._value_conversion(value)
+        # Return the stored value
+        return self._native_value
 
     #async def async_update(self):
         # Request a data update to the coordinator
