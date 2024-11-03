@@ -1,8 +1,11 @@
 import logging
 import re
 import voluptuous as vol
+from typing import Any
 
 from homeassistant import config_entries
+from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowResult
 import homeassistant.helpers.config_validation as cv
 from .constants import DOMAIN
 
@@ -17,8 +20,8 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 2
     MINOR_VERSION = 1
 
-    def __init__(self) -> None:
-        """Initialize the ipmi config flow."""
+    def __init__(self):
+        """Inicialize the options."""
         self.discovery_info = None
 
     async def async_step_mqtt(self, discovery_info):
@@ -76,3 +79,49 @@ class OpenWrtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_abort(reason=f"The device ID {user_input['id']} already exists.")
 
         return self.async_create_entry(title=title, data=user_input)
+
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        """Create the options flow."""
+        return OpenWrtOptionsFlowHandler(config_entry)
+
+class OpenWrtOptionsFlowHandler(config_entries.OptionsFlow):
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+        _LOGGER.debug("Current entry: %r", self.config_entry.data)
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            title = f"{user_input["id"]}"
+            _LOGGER.debug("New Title: %s", title)
+            # Aquí puedes actualizar las opciones de la entrada
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                title=title,  # Aquí puedes establecer el nuevo título
+                data=user_input  # Asegúrate de pasar los datos actualizados
+            )
+            # Recarga la entrada para aplicar los cambios
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+            return self.async_create_entry(title="", data=user_input)
+        
+        # Get the current data to use it as defaults in the form
+        current_data = self.config_entry.data
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=STEP_USER_DATA_SCHEMA.extend(
+                {
+                    vol.Optional('id', default = current_data['id']): cv.string,
+                    vol.Optional('mqtt_topic', default = current_data['mqtt_topic']): cv.string,
+                }
+            ),
+            errors={}
+        )
